@@ -1,0 +1,5 @@
+*
+!README.md
+!.gitignore
+!src/*/
+*src/*/*.js
