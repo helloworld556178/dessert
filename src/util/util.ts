@@ -8,7 +8,9 @@ type GeneraterTuple<
     > = R['length'] extends N ? R : GeneraterTuple<T, N, [T, ...R]>;
 // type X = GeneraterTuple<string, 10>;
 
-// TODO 实现一种功能，拦截 function 对象
+/**
+ * TODO 实现一种功能，拦截 function 对象
+ */
 export namespace yes {
     /** 不允许将函数作为值传递 */
     export function o(v: any): any {

@@ -1,7 +1,12 @@
+/**
+ * TODO 实现一种功能，拦截 function 对象
+ */
 export declare namespace yes {
+    /** 不允许将函数作为值传递 */
     function o(v: any): any;
 }
 export declare class Util {
+    static clamp(v: number, min: number, max: number): number;
     /** 用于深拷贝一份数据，中间不能有函数成员 */
     static copy<T>(o: T): Promise<T>;
     /** 禁止对象修改 */
