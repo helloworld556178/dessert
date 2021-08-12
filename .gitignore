@@ -3,4 +3,4 @@
 !.gitignore
 !src/*/
 src/*/*.js
-!example/
+!example/*
