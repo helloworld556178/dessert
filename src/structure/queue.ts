@@ -22,6 +22,7 @@ export class Queue<T> {
             this.rear.next = node;
             this.rear = node;
         }
+        this.size++;
     }
     shift(): T {
         if (this.head === undefined) { return undefined; }
@@ -31,6 +32,7 @@ export class Queue<T> {
         } else {
             this.head = this.head.next;
         }
+        this.size--;
         return node.value;
     }
 
