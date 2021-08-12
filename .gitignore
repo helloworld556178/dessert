@@ -2,5 +2,5 @@
 !README.md
 !.gitignore
 !src/*/
-*src/*/*.js
+src/*/*.js
 !src/example/*.js
