@@ -21,6 +21,8 @@ export namespace yes {
 
 export namespace util {
     export namespace date {
+        const TIMEZONE_OFFSET = new Date().getTimezoneOffset() * 60000;
+
         export function timestamp(date: string): number {
             if (typeof (date) === "string") {
                 if (isNaN(Number(date)) === false) { return Number(date); }
@@ -35,6 +37,27 @@ export namespace util {
                 }
             }
             return 0;
+        }
+
+        export function time(timestamp: number): string {
+            let ret: string[] = new Array(3);
+            timestamp = timestamp || 0;
+            timestamp = Math.floor(timestamp / 1000);
+            ret[2] = String(timestamp % 60).padStart(2, '0');
+            timestamp = Math.floor(timestamp / 60);
+            ret[1] = String(timestamp % 60).padStart(2, '0');
+            timestamp = Math.floor(timestamp / 60);
+            ret[0] = String(timestamp);
+            if (ret[0].length === 1) {
+                ret[0] = ret[0].padStart(2, '0');
+            }
+            return ret.join(":");
+        }
+
+        export function date(timestamp: number): string {
+            timestamp = timestamp || 0;
+            let d = new Date(timestamp + TIMEZONE_OFFSET);
+            return `${String(d.getFullYear()).padStart(4, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
     }
 
