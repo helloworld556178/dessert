@@ -20,6 +20,22 @@ export namespace yes {
 }
 
 export class Util {
+    public static timestamp(date: string): number {
+        if (typeof (date) === "string") {
+            if (isNaN(Number(date)) === false) { return Number(date); }
+
+            let match = date.match(/^([0-9]+):([0-9]+):([0-9]+)$/);
+            if (match !== null) {
+                let timestamp = Number(match[1]);
+                timestamp = timestamp * 60 + Number(match[2]);
+                timestamp = timestamp * 60 + Number(match[3]);
+                timestamp *= 1000;
+                return timestamp;
+            }
+        }
+        return 0;
+    }
+
     public static clamp(v: number, min: number, max: number): number {
         return Math.min(Math.max(v, min), max);
     }
