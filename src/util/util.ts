@@ -21,9 +21,14 @@ export namespace yes {
 
 export namespace util {
     export namespace date {
-        const TIMEZONE_OFFSET = new Date().getTimezoneOffset() * 60000;
+        export const TIMEZONE_OFFSET = new Date().getTimezoneOffset() * 60000;
 
-        export function timestamp(date: string): number {
+        /**
+         * 将字符串翻译为标准时区的时间戳
+         * @param date 
+         * @returns 
+         */
+        export function utctimestamp(date: string): number {
             if (typeof (date) === "string") {
                 if (isNaN(Number(date)) === false) { return Number(date); }
 
@@ -37,6 +42,10 @@ export namespace util {
                 }
             }
             return 0;
+        }
+
+        export function timestamp(date: string): number {
+            return utctimestamp(date) + TIMEZONE_OFFSET;
         }
 
         export function time(timestamp: number): string {
@@ -54,10 +63,50 @@ export namespace util {
             return ret.join(":");
         }
 
+        /**
+         * 获取标准时区的日期，返回的是没有考虑时区的字符串
+         * @param timestamp 
+         * @returns 
+         */
+        export function utcdate(timestamp: number): string {
+            timestamp = timestamp || 0;
+            let d = new Date(timestamp);
+            return `${String(d.getUTCFullYear()).padStart(4, '0')}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+        }
+
+        /**
+         * 获取标准时区的日期时间，返回的是没有考虑时区的字符串
+         * @param timestamp 
+         * @returns 
+         */
+        export function utcdatetime(timestamp: number): string {
+            timestamp = timestamp || 0;
+            let d = new Date(timestamp);
+            return `${String(d.getUTCFullYear()).padStart(4, '0')}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')} ${String(d.getUTCHours()).padStart(2, '0')
+                }:${String(d.getUTCMinutes()).padStart(2, '0')}:${String(d.getUTCSeconds()).padStart(2, '0')}`;
+        }
+
+        /**
+         * 获取当前时区的日期，返回的是考虑时区的字符串
+         * @param timestamp 
+         * @returns 
+         */
         export function date(timestamp: number): string {
             timestamp = timestamp || 0;
-            let d = new Date(timestamp + TIMEZONE_OFFSET);
+            let d = new Date(timestamp);
             return `${String(d.getFullYear()).padStart(4, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        /**
+         * 获取当前时区的日期时间，返回的是考虑时区的字符串
+         * @param timestamp 
+         * @returns 
+         */
+        export function datetime(timestamp: number): string {
+            timestamp = timestamp || 0;
+            let d = new Date(timestamp);
+            return `${String(d.getFullYear()).padStart(4, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')
+                }:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
         }
     }
 
