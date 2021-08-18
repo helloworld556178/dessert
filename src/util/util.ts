@@ -19,29 +19,31 @@ export namespace yes {
     }
 }
 
-export class Util {
-    public static timestamp(date: string): number {
-        if (typeof (date) === "string") {
-            if (isNaN(Number(date)) === false) { return Number(date); }
+export namespace util {
+    export namespace date {
+        export function timestamp(date: string): number {
+            if (typeof (date) === "string") {
+                if (isNaN(Number(date)) === false) { return Number(date); }
 
-            let match = date.match(/^([0-9]+):([0-9]+):([0-9]+)$/);
-            if (match !== null) {
-                let timestamp = Number(match[1]);
-                timestamp = timestamp * 60 + Number(match[2]);
-                timestamp = timestamp * 60 + Number(match[3]);
-                timestamp *= 1000;
-                return timestamp;
+                let match = date.match(/^([0-9]+):([0-9]+):([0-9]+)$/);
+                if (match !== null) {
+                    let timestamp = Number(match[1]);
+                    timestamp = timestamp * 60 + Number(match[2]);
+                    timestamp = timestamp * 60 + Number(match[3]);
+                    timestamp *= 1000;
+                    return timestamp;
+                }
             }
+            return 0;
         }
-        return 0;
     }
 
-    public static clamp(v: number, min: number, max: number): number {
+    export function clamp(v: number, min: number, max: number): number {
         return Math.min(Math.max(v, min), max);
     }
 
     /** 用于深拷贝一份数据，中间不能有函数成员 */
-    public static copy<T>(o: T): Promise<T> {
+    export function copy<T>(o: T): Promise<T> {
         let resolve: (value: T) => void;
         let promise = new Promise<T>(r => resolve = r);
 
@@ -58,33 +60,17 @@ export class Util {
     }
 
     /** 禁止对象修改 */
-    public static freeze(o: object): object { return Object.freeze(o); }
+    export function freeze(o: object): object { return Object.freeze(o); }
     /** 禁止对象新增或删除成员 */
-    public static seal(o: object): object { return Object.seal(o); }
-
-    /** 生成一个新的ID */
-    public static newId(): string {
-        if (this.instance === undefined) {
-            this.instance = new Util();
-        }
-        if (this.instance.idGenerator === undefined) {
-            this.instance.idGenerator = function* () {
-                let id = 1;
-                while (true) {
-                    yield id++;
-                }
-            }();
-        }
-        return `${this.ID_PREFIX}${this.instance.idGenerator.next().value}`;
-    }
+    export function seal(o: object): object { return Object.seal(o); }
 
     /** 生成一个有分数星星字符串 */
-    public static rateStr(rate: 0 | 1 | 2 | 3 | 4 | 5): string {
+    export function rateStr(rate: 0 | 1 | 2 | 3 | 4 | 5): string {
         return "★★★★★☆☆☆☆☆".slice(5 - rate, 10 - rate);
     }
 
     /** 控制台输出 */
-    public static FBI_WARNING(): void {
+    export function FBI_WARNING(): void {
         // 在此提醒，为免于生成丑陋的锯齿背景图片，请注意空格的个数，并保证console面板的宽度。
         console.log(
             // atob(`JWMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJWMgRkJJIFdBUk5JTkcgJWMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKJWMgICAgICAgIEZlZGVyYWwgTGF3IHByb3ZpZGVzIHNldmVyZSBjaXZpbCBhbmQgY3JpbWluYWwgcGVuYWx0aWVzIGZvciAgICAgICAgCiAgICAgICAgdGhlIHVuYXV0aG9yaXplZCByZXByb2R1Y3Rpb24sZGlzdHJpYnV0aW9uLCBvciBleGhpYml0aW9uIG9mICAgICAgICAKICAgICAgICAgY29weXJpZ2h0ZWQgbW90aW9uIHBpY3R1cmVzIChUaXRsZSAxNywgVW5pdGVkIFN0YXRlcyBDb2RlLCAgICAgICAgIAogICAgICAgIFNlY3Rpb25zIDUwMSBhbmQgNTA4KS4gVGhlIEZlZGVyYWwgQnVyZWF1IG9mIEludmVzdGlnYXRpb24gICAgICAgICAgCiAgICAgICAgIGludmVzdGlnYXRlcyBhbGxlZ2F0aW9ucyBvZiBjcmltaW5hbCBjb3B5cmlnaHQgaW5mcmluZ2VtZW50ICAgICAgICAKICAgICAgICAgICAgICAgICAoVGl0bGUgMTcsIFVuaXRlZCBTdGF0ZXMgQ29kZSwgU2VjdGlvbiA1MDYpLiAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAo=`),
@@ -97,18 +83,26 @@ export class Util {
     }
 
     /** 根据本地化的结果比较两个字符串的大小 */
-    public static localCompare(s1: string, s2: string): number {
+    export function localCompare(s1: string, s2: string): number {
         return (s1 || "").localeCompare(s2 || "");
     }
 
+    /** 生成一个新的ID */
+    export function newId(): string {
+        if (idGenerator === undefined) {
+            idGenerator = function* () {
+                let id = 1;
+                while (true) {
+                    yield id++;
+                }
+            }();
+        }
+        return `${ID_PREFIX}${idGenerator.next().value}`;
+    }
 
-    private constructor() { }
-
-    private static instance: Util;
-    private idGenerator: Generator<number>;
-    public static readonly ID_PREFIX = "ID-";
+    const ID_PREFIX = "ID-";
+    let idGenerator: Generator<number>;
 }
-
 
 /**
  * 只作用于浏览器
