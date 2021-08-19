@@ -114,6 +114,10 @@ export namespace util {
         return Math.min(Math.max(v, min), max);
     }
 
+    export function at(v: number, min: number, max: number): boolean {
+        return v >= min && v <= max;
+    }
+
     /** 用于深拷贝一份数据，中间不能有函数成员 */
     export function copy<T>(o: T): Promise<T> {
         let resolve: (value: T) => void;
