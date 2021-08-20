@@ -21,12 +21,13 @@ export class TimeoutHandler {
     private setTimeout(): void {
         if (this.handler !== undefined) { return; }
         this.handler = globalThis.setTimeout(() => {
-            this.handler = undefined;
             if (this.timeoutThreshold > Date.now()) {
+                this.handler = undefined;
                 this.setTimeout();
             } else {
                 this.callback && this.callback();
                 this.callback = undefined;
+                this.handler = undefined;
             }
         }, this.timeoutThreshold - Date.now());
     }
