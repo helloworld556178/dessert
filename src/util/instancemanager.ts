@@ -14,10 +14,10 @@ export class InstanceManager {
      * @param foo 用于加载的函数
      * @returns 
      */
-    public static load(foo: (manager: typeof InstanceManager) => Promise<boolean>): Promise<boolean> {
+    public static load(foo: () => Promise<{ key: string; value: any; }[]>): Promise<void> {
         assert(typeof foo === "function");
 
-        return foo(InstanceManager);
+        return foo().then(kvs => (kvs || []).forEach(kv => this.register(kv.key, kv.value)));
     }
 
     public static register(id: string, instance: any): void {
