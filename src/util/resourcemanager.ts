@@ -24,7 +24,7 @@ export class ResourceManager {
         this.ensure();
         assert(id !== undefined && this.#instance.map.has(id) === false);
 
-        this.#instance.map.set(id, instance);
+        this.#instance.map.set(id, Object.freeze(instance));
     }
     public static get<T extends keyof ResourceTypes>(id: T): ResourceTypes[T];
     public static get(id: string): any;
