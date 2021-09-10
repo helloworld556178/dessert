@@ -5,7 +5,7 @@
 import { assert } from "./assert";
 
 export interface InstanceTypes {
-    readonly "namespace.classname": InstanceManager;
+    readonly "namespace.classname": any;
 }
 
 export class InstanceManager {
