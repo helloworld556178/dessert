@@ -1,162 +1,113 @@
 /**
  * 提供一个类，实例化后可以提供类似sql的查询以及存储功能
  */
-
-import { assert } from "./assert";
-
-type BasicDataType = string | number | boolean | bigint | null | undefined;
-interface BasicKeyValuePair {
-    [key: string]: BasicDataType;
-}
-
-enum COMMAND_TYPE {
-    NONE, SELECT, UPDATE, INSERT, DELETE, DROP, CREATE
-}
-
-export interface TableList {
-    anytablename: string;
+function assert(condition, message) {
+    if (!condition) {
+        // console.error(message || "发生了错误");
+        throw new Error(message);
+    }
 }
 
 
-
-interface IFrom<K> {
-    from<T extends keyof K>(target: T): IWhere;
-}
-interface IWhere {
-    go<T = void>(): T;
-    where<T extends BasicKeyValuePair>(params: T): IGO;
-}
-interface ISet {
-    set<T extends BasicKeyValuePair>(params: T): IWhere;
-}
-interface IInto<K> {
-    into<T extends keyof K>(target: T): IGO;
-}
-interface ICreate {
-    primary(key: string): IGO;
-}
-interface IGO {
-    go<T = void>(): T;
-}
-
-export interface IDataManager<K> {
-    select(key: string | "*", ...keys: string[]): IFrom<K>;
-    update<T extends keyof K>(target: T): ISet;
-    insert<T extends BasicKeyValuePair>(params: T[]): IInto<K>;
-
-    delete<T extends keyof K>(target: T): IWhere;
-    drop<T extends keyof K>(target: T): IGO;
-    create<T extends keyof K>(target: T): ICreate;
-
-    tables(): (keyof K)[];
-}
-
-export class DataManager<K = TableList> implements IDataManager<K>, ICreate, IFrom<K>, IWhere, ISet, IInto<K>, IGO {
-    public go<T = void>(): T {
+var COMMAND_TYPE;
+(function (COMMAND_TYPE) {
+    COMMAND_TYPE[COMMAND_TYPE["NONE"] = 0] = "NONE";
+    COMMAND_TYPE[COMMAND_TYPE["SELECT"] = 1] = "SELECT";
+    COMMAND_TYPE[COMMAND_TYPE["UPDATE"] = 2] = "UPDATE";
+    COMMAND_TYPE[COMMAND_TYPE["INSERT"] = 3] = "INSERT";
+    COMMAND_TYPE[COMMAND_TYPE["DELETE"] = 4] = "DELETE";
+    COMMAND_TYPE[COMMAND_TYPE["DROP"] = 5] = "DROP";
+    COMMAND_TYPE[COMMAND_TYPE["CREATE"] = 6] = "CREATE";
+})(COMMAND_TYPE || (COMMAND_TYPE = {}));
+export class DataManager {
+    constructor() {
+        this.db = new Map();
+    }
+    go() {
         assert(this.worker !== undefined);
-
-        const result = this.worker.go<T>();
+        const result = this.worker.go();
         this.worker = undefined;
         return result;
     }
-    public from<T extends keyof K>(target: T): IWhere {
+    from(target) {
         assert(this.worker !== undefined);
-
         this.worker.setTarget(target);
         return this;
     }
-    public where<T extends BasicKeyValuePair>(params: T): IGO {
+    where(params) {
         assert(this.worker !== undefined);
-
         this.worker.setCondition(params);
         return this;
     }
-    public set<T extends BasicKeyValuePair>(params: T): IWhere {
+    set(params) {
         assert(this.worker !== undefined);
-
         this.worker.setKVs(params);
         return this;
     }
-    public into<T extends keyof K>(target: T): IGO {
+    into(target) {
         assert(this.worker !== undefined);
-
         this.worker.setTarget(target);
         return this;
     }
-    public primary(key: string): IGO {
+    primary(key) {
         assert(this.worker !== undefined);
-
         this.worker.setKey(key);
         return this;
     }
-
-
-
-    public select(key: string, ...keys: string[]): IFrom<K> {
+    select(key, ...keys) {
         this.worker = new Worker(this.db);
         this.worker.setType(COMMAND_TYPE.SELECT);
         this.worker.select(key, ...keys);
         return this;
     }
-    public update<T extends keyof K>(target: T): ISet {
+    update(target) {
         this.worker = new Worker(this.db);
         this.worker.setType(COMMAND_TYPE.UPDATE);
         this.worker.setTarget(target);
         return this;
     }
-    public insert<T extends BasicKeyValuePair>(params: T[]): IInto<K> {
+    insert(params) {
         this.worker = new Worker(this.db);
         this.worker.setType(COMMAND_TYPE.INSERT);
         this.worker.setKVs(params);
         return this;
     }
-    public delete<T extends keyof K>(target: T): IWhere {
+    delete(target) {
         this.worker = new Worker(this.db);
         this.worker.setType(COMMAND_TYPE.DELETE);
         this.worker.setTarget(target);
         return this;
     }
-    public drop<T extends keyof K>(target: T): IGO {
+    drop(target) {
         this.worker = new Worker(this.db);
         this.worker.setType(COMMAND_TYPE.DROP);
         this.worker.setTarget(target);
         return this;
     }
-    public create<T extends keyof K>(target: T): ICreate {
+    create(target) {
         this.worker = new Worker(this.db);
         this.worker.setType(COMMAND_TYPE.CREATE);
         this.worker.setTarget(target);
         return this;
     }
-    public tables(): (keyof K)[] {
+    tables() {
         return [...this.db.keys()];
     }
-
-
-    constructor() {
-        this.db = new Map();
+}
+class AWorker {
+    constructor(db) {
+        assert(db !== undefined);
+        this.type = COMMAND_TYPE.NONE;
+        this.db = db;
     }
-
-    private db: Map<keyof K, ITable>;
-    private worker: Worker<K>;
-}
-
-
-interface ITable {
-    key: string;
-    map: Map<BasicDataType, BasicKeyValuePair>;
-}
-
-
-abstract class AWorker<K> implements IGO {
-    public setType(type: COMMAND_TYPE): void {
+    setType(type) {
         this.type = type;
     }
-
-    public select(key: "*" | string, ...keys: string[]): void {
+    select(key, ...keys) {
         if (key === "*") {
             this.keys = key;
-        } else {
+        }
+        else {
             this.keys = new Array(keys.length + 1);
             this.keys[0] = key;
             for (let i = 0; i < keys.length; i++) {
@@ -164,22 +115,21 @@ abstract class AWorker<K> implements IGO {
             }
         }
     }
-    public setCondition<T extends BasicKeyValuePair>(condition: T): void {
+    setCondition(condition) {
         this.condition = condition;
     }
-    public setTarget<T extends keyof K>(target: T): void {
+    setTarget(target) {
         this.target = target;
     }
-    public setKVs<T extends BasicKeyValuePair>(kvs: T | T[]): void {
+    setKVs(kvs) {
         this.kvs = kvs;
     }
-    public setKey(key: string): void {
+    setKey(key) {
         this.key = key;
     }
-
-    public go<T = void>(): T {
+    go() {
         let result = undefined;
-        let table: ITable;
+        let table;
         switch (this.type) {
             case COMMAND_TYPE.SELECT:
                 assert(this.target !== undefined);
@@ -187,30 +137,32 @@ abstract class AWorker<K> implements IGO {
                 assert(table !== undefined);
                 if (this.keys === "*" && this.condition === undefined) {
                     result = [...table.map.values()];
-                } else if (this.keys === "*") {
+                }
+                else if (this.keys === "*") {
                     const keys = Object.keys(this.condition);
                     assert(keys.length === 1, "目前查询条件只支持 key");
                     assert(table.key === keys[0], "目前的查询条件只支持 key");
-                    result = [table.map.get(this.condition[table.key])];
-                } else if (this.condition === undefined) {
-                    result = new Array<BasicDataType>(table.map.size);
+                    result = [table.map.get(table.key)];
+                }
+                else if (this.condition === undefined) {
+                    result = new Array(table.map.size);
                     let i = 0;
-                    const columns: string[] = this.keys;
+                    const columns = this.keys;
                     table.map.forEach(row => {
                         const t = {};
                         columns.forEach(e => t[e] = row[e]);
                         result[i++] = t;
                     });
-                } else {
+                }
+                else {
                     const keys = Object.keys(this.condition);
                     assert(keys.length === 1, "目前查询条件只支持 key");
                     assert(table.key === keys[0], "目前的查询条件只支持 key");
                     result = [{}];
-                    const columns: string[] = this.keys;
-                    const row = table.map.get(this.condition[table.key]);
+                    const columns = this.keys;
+                    const row = table.map.get(table.key);
                     columns.forEach(c => result[0][c] = row[c]);
                 }
-
                 this.keys = undefined;
                 this.target = undefined;
                 this.condition = undefined;
@@ -229,7 +181,8 @@ abstract class AWorker<K> implements IGO {
                         }
                     });
                     result = table.map.size;
-                } else {
+                }
+                else {
                     const keys = Object.keys(this.condition);
                     assert(keys.length === 1, "目前查询条件只支持 key");
                     assert(table.key === keys[0], "目前的查询条件只支持 key");
@@ -240,7 +193,6 @@ abstract class AWorker<K> implements IGO {
                     }
                     result = 1;
                 }
-
                 this.target = undefined;
                 this.kvs = undefined;
                 this.condition = undefined;
@@ -256,10 +208,10 @@ abstract class AWorker<K> implements IGO {
                         table.map.set(kv[table.key], kv);
                     });
                     result = this.kvs.length;
-                } else {
+                }
+                else {
                     assert(false, "插入应当是一个数组");
                 }
-
                 this.target = undefined;
                 this.kvs = undefined;
                 break;
@@ -277,7 +229,8 @@ abstract class AWorker<K> implements IGO {
                 assert(this.target !== undefined);
                 if (this.condition === undefined) {
                     this.db.get(this.target)?.map?.clear();
-                } else {
+                }
+                else {
                     const keys = Object.keys(this.condition);
                     const table = this.db.get(this.target);
                     assert(table !== undefined, "找不到指定名称的表格");
@@ -285,7 +238,6 @@ abstract class AWorker<K> implements IGO {
                     assert(keys[0] === table.key, "目前只能根据 key 进行删查改");
                     result = table.map.get(this.condition[table.key]);
                 }
-
                 this.condition = undefined;
                 this.target = undefined;
                 break;
@@ -296,30 +248,12 @@ abstract class AWorker<K> implements IGO {
             default:
                 throw new Error(`${this.type} NOT IMPLEMENTS YET.`);
         }
-
         this.type = COMMAND_TYPE.NONE;
-
         return result;
     }
-
-    constructor(db: Map<keyof K, ITable>) {
-        assert(db !== undefined);
-
-        this.type = COMMAND_TYPE.NONE;
-        this.db = db;
-    }
-
-    protected key: string;
-    protected keys: "*" | string[];
-    protected condition: BasicKeyValuePair;
-    protected target: keyof K;
-    protected kvs: BasicKeyValuePair | BasicKeyValuePair[];
-
-    protected type: COMMAND_TYPE;
-    protected db: Map<keyof K, ITable>;
 }
-class Worker<K = TableList> extends AWorker<K> {
-    constructor(db: Map<keyof K, ITable>) {
+class Worker extends AWorker {
+    constructor(db) {
         super(db);
     }
 }
