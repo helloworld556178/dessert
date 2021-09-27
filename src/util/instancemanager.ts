@@ -40,6 +40,7 @@ export class InstanceManager {
             this.#instance = new InstanceManager();
         }
     }
+
     private constructor() {
         this.map = new Map();
     }
