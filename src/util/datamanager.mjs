@@ -1,6 +1,7 @@
 /**
  * 提供一个类，实例化后可以提供类似sql的查询以及存储功能
  */
+
 function assert(condition, message) {
     if (!condition) {
         // console.error(message || "发生了错误");
@@ -142,7 +143,7 @@ class AWorker {
                     const keys = Object.keys(this.condition);
                     assert(keys.length === 1, "目前查询条件只支持 key");
                     assert(table.key === keys[0], "目前的查询条件只支持 key");
-                    result = [table.map.get(table.key)];
+                    result = [table.map.get(this.condition[table.key])];
                 }
                 else if (this.condition === undefined) {
                     result = new Array(table.map.size);
@@ -160,7 +161,7 @@ class AWorker {
                     assert(table.key === keys[0], "目前的查询条件只支持 key");
                     result = [{}];
                     const columns = this.keys;
-                    const row = table.map.get(table.key);
+                    const row = table.map.get(this.condition[table.key]);
                     columns.forEach(c => result[0][c] = row[c]);
                 }
                 this.keys = undefined;
