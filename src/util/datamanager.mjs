@@ -187,7 +187,7 @@ class AWorker {
                     const keys = Object.keys(this.condition);
                     assert(keys.length === 1, "目前查询条件只支持 key");
                     assert(table.key === keys[0], "目前的查询条件只支持 key");
-                    const row = table.map.get(this.kvs[table.key]);
+                    const row = table.map.get(this.condition[table.key]);
                     assert(row !== undefined, "没有找到需要更新的行");
                     for (let c in this.kvs) {
                         row[c] = this.kvs[c];
