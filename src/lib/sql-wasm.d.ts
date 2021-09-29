@@ -11,6 +11,10 @@ declare interface SQL {
 
 export namespace Database {
     export type SqlValue = Uint8Array | string | number | null;
+    export type QueryExecResult = {
+        columns: Array<string>;
+        values: Array<Array<Database.SqlValue>>;
+    };
 }
 
 declare class Database {
@@ -30,8 +34,13 @@ declare class Database {
 
     public each(sql: string, callback: Function, done: Function): Database;
     public each(sql: string, params: Statement.BindParams, callback: Function, done: Function): Database;
-    public run(sql: string): void;
-    public prepare(pattern: string): Statement;
+    public exec(sql: string, params: Statement.BindParams): Array<Database.QueryExecResult>;
+    public export(): Uint8Array;
+    public getRowsModified(): number;
+    public handleError(): void;
+    public iterateStatements(sql: string): StatementIterator;
+    public prepare(sql: string, params?: Statement.BindParams): Statement;
+    public run(sql: string, params?: Statement.BindParams): Database;
 
     constructor(db: ArrayBuffer);
 }
@@ -51,3 +60,6 @@ declare class Statement {
     }): void;
     step(): boolean;
 }
+
+
+declare class StatementIterator { }
