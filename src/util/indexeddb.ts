@@ -1,4 +1,5 @@
 import { assert } from "./assert";
+import { SimpleFunction } from "./declare";
 import { SimplePromise } from "./promise";
 
 /**
@@ -14,6 +15,12 @@ type BasicDataType = string | number | boolean | bigint | null | undefined;
  * 由于需要考虑多窗口情况下，原生接口对本程序的影响，因此设计的时候应该以数据库提供的事件为准
  */
 class DB {
+    // 回调中应当解除自己的指向
+    // 没有考虑多次回调中回调函数被改写的问题
+    private upgradeneededcallback: SimpleFunction<IDBOpenDBRequest>;
+
+
+
     private openPromise: SimplePromise;
     private db: IDBDatabase;
     private name: string;
@@ -41,10 +48,14 @@ class DB {
         }
         this.openPromise = new SimplePromise();
 
-        const request = indexedDB.open(db);
+        const version = this.name !== db ? undefined : this.version;
+        const request: IDBOpenDBRequest = indexedDB.open(db, version);
         request.onerror = () => {
             console.warn(request.error);
             this.openPromise.reject(request.error);
+        };
+        request.onupgradeneeded = () => {
+            this.upgradeneededcallback && this.upgradeneededcallback(request);
         };
         request.onsuccess = () => {
             this.db = request.result;
@@ -121,25 +132,67 @@ class DB {
     create(table: string, ...indexes: string[]): Promise<any> {
         assert(this.name !== undefined, "没有打开数据库，没有获取过数据库的名字");
 
-        // TODO
+        const promise = new SimplePromise();
+        this.close().then(() => {
+            this.upgradeneededcallback = request => {
+                const db = request.result;
+                const store = db.createObjectStore(table, {
+                    autoIncrement: true
+                });
+                for (let index of indexes) {
+                    store.createIndex(index, index, { unique: false });
+                }
+                this.upgradeneededcallback = undefined;
+            };
+            this.version++;
+            this.open(this.name).then(() => promise.resolve());
+        });
 
         return promise.promise;
     }
 
     /** @deprecated 暂时不用 */
-    alter(table: string): void;
+    alter(table: string): void { throw new Error("not implemented yet."); }
 
     /**
      * 删除表
      * @param table 表格名
      */
-    drop(table: string): Promise<any>;
+    drop(table: string): Promise<any> {
+        assert(this.name !== undefined, "没有打开数据库，没有数据库的名字");
+
+        const promise = new SimplePromise();
+
+        this.close().then(() => {
+            this.upgradeneededcallback = request => {
+                const db = request.result;
+                db.deleteObjectStore(table);
+            };
+            this.version++;
+            this.open(this.name).then(() => promise.resolve());
+        });
+
+        return promise.promise;
+    }
 
     /**
      * 插入数据
      * @param data 待插入的数据
      */
-    insert(data: { [key: string]: BasicDataType; }): Promise<any>;
+    insert(table: string, data: { [key: string]: BasicDataType; }): Promise<any> {
+        assert(this.name !== undefined, "没有打开数据库，没有数据库的名字");
+
+        const promise = new SimplePromise();
+
+        this.open(this.name).then(() => {
+            const transaction = this.db.transaction(table, "readwrite");
+            const store = transaction.objectStore(table);
+            store.add(data);
+            transaction.oncomplete = () => promise.resolve();
+        });
+
+        return promise.promise;
+    }
 
     /**
      * 根据索引更新数据
@@ -147,18 +200,64 @@ class DB {
      * @param value 索引的值
      * @param data 需要更新的数据
      */
-    update(index: string, value: BasicDataType, data: { [key: string]: BasicDataType; }): Promise<any>;
+    update(table: string, index: string, value: BasicDataType, data: { [key: string]: BasicDataType; }): Promise<any> {
+        assert(this.name !== undefined, "没有打开数据库，没有数据库的名字");
+        assert(typeof value !== "undefined" && typeof value !== "bigint", "尚未实现");
+
+        const promise = new SimplePromise();
+
+        this.open(this.name).then(() => {
+            const transaction = this.db.transaction(table);
+            const store = transaction.objectStore(table);
+            const keyIndex = store.index(index);
+            keyIndex.openCursor(<any>value).onsuccess = ev => {
+                const cursor = <IDBCursorWithValue>(<IDBRequest>ev.target).result;
+                if (!cursor) { return; }
+                const t = cursor.value;
+                Object.assign(t, data);
+                cursor.update(t);
+                cursor.continue();
+            };
+            transaction.oncomplete = () => promise.resolve();
+        });
+
+        return promise.promise;
+    }
 
     /**
      * 根据数据模板删除数据
      * @param data 需要删除的数据模板
      * @deprecated 暂时不用这个
      */
-    remove(data: { [key: string]: any; }): Promise<any>;
+    remove(table: string, data: { [key: string]: any; }): Promise<any>;
     /**
      * 删除某些数据
      * @param index 索引的名字
      * @param value 索引的值
      */
-    remove(index: string, value: BasicDataType): Promise<any>;
+    remove(table: string, index: string, value: BasicDataType): Promise<any>;
+    remove(table: string, data: string | { [key: string]: any; }, value?: BasicDataType): Promise<any> {
+        assert(this.name !== undefined, "没有打开数据库，没有数据库的名字");
+        assert(data !== undefined);
+        assert(typeof value !== "undefined" && typeof value !== "bigint", "尚未实现");
+
+        if (typeof data === "string") {
+            const promise = new SimplePromise();
+            this.open(this.name).then(() => {
+                const transaction = this.db.transaction(table, "readwrite");
+                const store = transaction.objectStore(table);
+                const index = store.index(data);
+                index.openCursor(<any>value).onsuccess = ev => {
+                    const cursor = <IDBCursor>(<IDBRequest>ev.target).result;
+                    if (!cursor) { return; }
+                    cursor.delete();
+                    cursor.continue();
+                };
+                transaction.oncomplete = () => promise.resolve();
+            });
+            return promise.promise;
+        } else {
+            return Promise.reject("not implemented yet.");
+        }
+    }
 }

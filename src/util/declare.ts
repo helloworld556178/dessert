@@ -1,6 +1,6 @@
 //#region 通用功能
-export type SimpleFunction = (value?: any) => void;
-export type SimpleBooleanFunction = (value?: any) => boolean;
+export type SimpleFunction<T = any> = (value?: T) => void;
+export type SimpleBooleanFunction<T = any> = (value?: T) => boolean;
 //#endregion
 
 //#region 类型对象声明
