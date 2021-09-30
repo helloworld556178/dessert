@@ -32,6 +32,9 @@ interface ISet {
 interface IInto<K> {
     into<T extends keyof K>(target: T): IGO;
 }
+interface IValues<K> {
+    values<T extends BasicKeyValuePair>(params: T[]): IGO;
+}
 interface ICreate {
     primary(key: string): IGO;
 }
@@ -42,7 +45,8 @@ interface IGO {
 export interface IDataManager<K> {
     select(key: string | "*", ...keys: string[]): IFrom<K>;
     update<T extends keyof K>(target: T): ISet;
-    insert<T extends BasicKeyValuePair>(params: T[]): IInto<K>;
+    // insert<T extends BasicKeyValuePair>(params: T[]): IInto<K>;
+    insert<T extends keyof K>(target: T): IValues<K>;
 
     delete<T extends keyof K>(target: T): IWhere;
     drop<T extends keyof K>(target: T): IGO;
@@ -51,7 +55,7 @@ export interface IDataManager<K> {
     tables(): (keyof K)[];
 }
 
-export class DataManager<K = TableList> implements IDataManager<K>, ICreate, IFrom<K>, IWhere, ISet, IInto<K>, IGO {
+export class DataManager<K = TableList> implements IDataManager<K>, ICreate, IFrom<K>, IWhere, ISet, IValues<K>, IGO {
     public go<T = void>(): T {
         assert(this.worker !== undefined);
 
@@ -77,10 +81,16 @@ export class DataManager<K = TableList> implements IDataManager<K>, ICreate, IFr
         this.worker.setKVs(params);
         return this;
     }
-    public into<T extends keyof K>(target: T): IGO {
+    // public into<T extends keyof K>(target: T): IGO {
+    //     assert(this.worker !== undefined);
+
+    //     this.worker.setTarget(target);
+    //     return this;
+    // }
+    public values<T extends BasicKeyValuePair>(params: T[]): IGO {
         assert(this.worker !== undefined);
 
-        this.worker.setTarget(target);
+        this.worker.setKVs(params);
         return this;
     }
     public primary(key: string): IGO {
@@ -104,10 +114,10 @@ export class DataManager<K = TableList> implements IDataManager<K>, ICreate, IFr
         this.worker.setTarget(target);
         return this;
     }
-    public insert<T extends BasicKeyValuePair>(params: T[]): IInto<K> {
+    public insert<T extends keyof K>(target: T): IValues<K> {
         this.worker = new Worker(this.db);
         this.worker.setType(COMMAND_TYPE.INSERT);
-        this.worker.setKVs(params);
+        this.worker.setTarget(target);
         return this;
     }
     public delete<T extends keyof K>(target: T): IWhere {
