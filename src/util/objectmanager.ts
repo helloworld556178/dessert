@@ -4,17 +4,20 @@
 
 import { assert } from "./assert";
 
-interface ObjectList extends TYPE_KKV {
+type ObjectList = Scope<{
     "test": {
         key: string;
         value: number;
     };
-}
+}>;
+
+export type Scope<T> = T extends TYPE_KKV ? T : never;
 
 interface TYPE_KV {
     key: any;
     value: any;
 }
+
 interface TYPE_KKV {
     [key: string]: TYPE_KV;
 }
