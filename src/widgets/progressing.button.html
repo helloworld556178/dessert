@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一个可以边框渐变滚动的按钮</title>
+
+    <style>
+        section {
+            position: relative;
+            margin: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <section>
+        <style>
+            #test-1 .button {
+                width: 200px;
+                height: 200px;
+                position: relative;
+                box-sizing: border-box;
+                padding: 4px;
+                overflow: hidden;
+            }
+
+            #test-1 .button::before {
+                content: '';
+                position: absolute;
+                width: 1000%;
+                height: 1000%;
+                top: -450%;
+                left: -450%;
+                transform-origin: center center;
+                background-image: conic-gradient(#00f, #fff);
+                animation: test-1 2s linear 0s infinite reverse;
+                z-index: -1;
+            }
+
+            #test-1 .inner {
+                width: 100%;
+                height: 100%;
+                background-color: #fff;
+            }
+
+            @keyframes test-1 {
+                from {
+                    transform: rotate(0);
+                }
+
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+
+        <div id="test-1">
+            <div class="button">
+                <div class="inner">
+                    这种方法只能用于圆形按钮，其他按钮会因为距离中心距离不同转速不同
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section>
+        <style>
+            #test-2 {
+                --border-width: 4px;
+                --gradient-color-1: #58e;
+                --gradient-color-2: transparent;
+                --button-width: 200px;
+                --button-height: 100px;
+                --progress-length: calc((var(--button-width) + var(--button-height)) * 2);
+                --animation-duration: 5s;
+            }
+
+            #test-2 .button {
+                box-sizing: border-box;
+                padding: var(--border-width);
+                position: relative;
+                width: var(--button-width);
+                height: var(--button-height);
+            }
+
+            #test-2 [class^="button-"] {
+                position: absolute;
+                background-repeat: repeat;
+                animation: var(--animation-duration) linear 0s infinite;
+                background-position: 0 0;
+            }
+
+            #test-2 .button-top {
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: var(--border-width);
+                background-image: linear-gradient(to right, var(--gradient-color-1), var(--gradient-color-2));
+                background-size: var(--progress-length) 100%;
+                animation-name: test-2-top;
+            }
+
+            #test-2 .button-bottom {
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: var(--border-width);
+                background-image: linear-gradient(to left, var(--gradient-color-1), var(--gradient-color-2));
+                background-size: var(--progress-length) 100%;
+                animation-name: test-2-bottom;
+            }
+
+            #test-2 .button-left {
+                top: 0;
+                left: 0;
+                width: var(--border-width);
+                height: 100%;
+                background-image: linear-gradient(to top, var(--gradient-color-1), var(--gradient-color-2));
+                background-size: 100% var(--progress-length);
+                animation-name: test-2-left;
+            }
+
+            #test-2 .button-right {
+                top: 0;
+                right: 0;
+                width: var(--border-width);
+                height: 100%;
+                background-image: linear-gradient(to bottom, var(--gradient-color-1), var(--gradient-color-2));
+                background-size: 100% var(--progress-length);
+                animation-name: test-2-right;
+            }
+
+            @keyframes test-2-top {
+                from {
+                    background-position: var(--progress-length) 0;
+                }
+
+                to {
+                    background-position: 0 0;
+                }
+            }
+
+            @keyframes test-2-bottom {
+                from {
+                    background-position: calc(0px - var(--button-height)) 0;
+                }
+
+                to {
+                    background-position: calc(var(--button-width) * 2 + var(--button-height)) 0;
+                }
+            }
+
+            @keyframes test-2-left {
+                from {
+                    background-position: 0 0;
+                }
+
+                to {
+                    background-position: 0 var(--progress-length);
+                }
+            }
+
+            @keyframes test-2-right {
+                from {
+                    background-position: 0 calc(var(--progress-length) - var(--button-width));
+                }
+
+                to {
+                    background-position: 0 calc(0px - var(--button-width));
+                }
+            }
+        </style>
+
+        <div id="test-2">
+            <div class="button">
+                <div class="button-top"></div>
+                <div class="button-bottom"></div>
+                <div class="button-left"></div>
+                <div class="button-right"></div>
+                <div class="inner">比较好的一个解决方案，将四个边的线性渐变组合为一个方框的边的渐变</div>
+            </div>
+        </div>
+    </section>
+
+
+</body>
+
+</html>
