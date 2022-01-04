@@ -32,8 +32,13 @@ namespace svgmap {
     interface Children {
         "data-sequence": string;
         "type": CHILDREN_TYPE;
-        x?: number; y?: number; width?: number; height?: number;
+        "x"?: number;
+        "y"?: number;
+        "width"?: number;
+        "height"?: number;
         "fill": string;
+        "data-id": string;
+        "onclick": (id: string) => void;
     }
     const _children: Children[] = [];
     const children: readonly Children[] = _children;
@@ -81,7 +86,15 @@ namespace svgmap {
         o.svg.onmousemove = handlemousemove;
         o.svg.oncontextmenu = (ev) => ev.preventDefault();
     }
-    export function add(type: CHILDREN_TYPE, x: number, y: number, width: number, height: number, fill?: string): void {
+    export function add(type: CHILDREN_TYPE, { id, x, y, width, height, fill, onclick }: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        fill?: string;
+        id: string;
+        onclick: (id: string) => void;
+    }): void {
         assert(!isNullOrEmpty(type));
         assert(!isNullOrEmpty(x));
         assert(!isNullOrEmpty(y));
@@ -90,12 +103,14 @@ namespace svgmap {
 
         _children.push({
             "data-sequence": newId(),
+            "data-id": id,
             type,
             x,
             y,
             width,
             height,
-            fill
+            fill,
+            onclick
         });
         _paintFlag.children = true;
         paintOnce();
