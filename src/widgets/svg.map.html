@@ -29,13 +29,22 @@
 <body>
     <div class="c">
         <svg id="svg" viewBox="0 0 300 200">
-            <rect id="r1" width="100" height="200" x="0" fill="#008d46" />
+            <!-- <rect id="r1" width="100" height="200" x="0" fill="#008d46" />
             <rect id="r2" width="100" height="200" x="100" fill="#ffffff" />
-            <rect id="r3" width="100" height="200" x="200" fill="#d2232c" />
+            <rect id="r3" width="100" height="200" x="200" fill="#d2232c" /> -->
         </svg>
     </div>
 
 
+    <script src="./svg.map.js"></script>
+    <script>
+        svgmap.init("svg", 300, 200);
+        svgmap.add("rect", 0, 0, 100, 200, "#008d46");
+        svgmap.add("rect", 100, 0, 100, 200, "#ffffff");
+        svgmap.add("rect", 200, 0, 100, 200, "#d2232c");
+    </script>
+
+    <!--
     <script>
         var svgmap = { init() { } };
         (function (svgmap) {
@@ -204,6 +213,7 @@
 
         svgmap.init();
     </script>
+     -->
 </body>
 
 </html>
