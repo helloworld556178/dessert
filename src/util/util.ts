@@ -19,6 +19,17 @@ export namespace yes {
     }
 }
 
+export function isNullOrEmpty(v: any): boolean {
+    return v === undefined || v === "" || v === null;
+}
+export function defaultValue<T>(value: T, defaultValue: T): T {
+    if (isNullOrEmpty(value)) {
+        return defaultValue;
+    }
+    return value;
+}
+
+
 export namespace util {
     export namespace date {
         export const TIMEZONE_OFFSET = new Date().getTimezoneOffset() * 60000;
