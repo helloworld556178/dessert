@@ -278,7 +278,11 @@ namespace svgmap {
         function appendChild(child: Children, index = -1): void {
             const e = document.createElementNS("http://www.w3.org/2000/svg", child.type);
             for (let i in child) {
-                e.setAttribute(i, child[i]);
+                if (i.startsWith("on") === false) {
+                    e.setAttribute(i, child[i]);
+                } else {
+                    e[i] = child[i];
+                }
             }
 
             if (index === -1) {
