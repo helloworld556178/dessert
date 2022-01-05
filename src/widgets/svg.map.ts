@@ -354,7 +354,7 @@ const MIN_WHEEL_VIEW = 2;
 const MAX_WHEEL_VIEW = Infinity;
 type ID = string;
 type CHILDREN_TYPE = keyof SVGElementTagNameMap;
-interface IEntities { svg: SVGSVGElement; paintHandler: number; };
+interface IEntities { svg: SVGSVGElement; paintHandler: number; }
 interface Mouse {
     leftDownFlag: boolean;
     previousPosition: number[];
