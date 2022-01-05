@@ -637,8 +637,8 @@ export class SvgMap {
         }
     }
 
-    init(svg: ID, width?: number, height?: number): void { }
-    add(type: CHILDREN_TYPE, { id, x, y, width, height, fill, onclick }: {
+    init: (svg: ID, width?: number, height?: number) => void;
+    add: (type: CHILDREN_TYPE, { id, x, y, width, height, fill, onclick }: {
         x: number;
         y: number;
         width: number;
@@ -646,7 +646,7 @@ export class SvgMap {
         fill?: string;
         id: string;
         onclick: (id: string) => void;
-    }): void { }
+    }) => void;
 }
 
 export function imageSize(src: string): Promise<{ width: number; height: number; }> {

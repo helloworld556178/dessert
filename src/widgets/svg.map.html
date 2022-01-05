@@ -36,12 +36,20 @@
     </div>
 
 
-    <script src="./svg.map.js"></script>
-    <script>
+    <script type="module">
+        import { SvgMap } from "./svg.map.js";
+
+        const svgmap = new SvgMap();
         svgmap.init("svg", 300, 200);
-        svgmap.add("rect", 0, 0, 100, 200, "#000d46");
-        svgmap.add("rect", 100, 0, 100, 200, "#ffffff");
-        svgmap.add("rect", 200, 0, 100, 200, "#d2232c");
+        svgmap.add("rect", {
+            x: 0, y: 0, width: 100, height: 200, fill: "#000d46"
+        });
+        svgmap.add("rect", {
+            x: 100, y: 0, width: 100, height: 200, fill: "#ffffff"
+        });
+        svgmap.add("rect", {
+            x: 200, y: 0, width: 100, height: 200, fill: "#d2232c"
+        });
     </script>
 
     <!--
