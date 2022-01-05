@@ -39,7 +39,7 @@ namespace svgmap {
         "height"?: number;
         "fill": string;
         "data-id": string;
-        "onclick": (id: string) => void;
+        "onclick": (ev: Event) => void;
     }
     const _children: Children[] = [];
     const children: readonly Children[] = _children;
@@ -94,7 +94,7 @@ namespace svgmap {
         height: number;
         fill?: string;
         id: string;
-        onclick: (id: string) => void;
+        onclick: (ev: Event) => void;
     }): void {
         assert(!isNullOrEmpty(type));
         assert(!isNullOrEmpty(x));
@@ -368,7 +368,7 @@ interface Children {
     "height"?: number;
     "fill": string;
     "data-id": string;
-    "onclick": (id: string) => void;
+    "onclick": (ev: Event) => void;
 }
 interface PaintFlag {
     resize: boolean;
@@ -613,7 +613,7 @@ export class SvgMap {
             height: number;
             fill?: string;
             id: string;
-            onclick: (id: string) => void;
+            onclick: (ev: Event) => void;
         }): void {
             assert(!isNullOrEmpty(type));
             assert(!isNullOrEmpty(x));
@@ -645,7 +645,7 @@ export class SvgMap {
         height: number;
         fill?: string;
         id: string;
-        onclick: (id: string) => void;
+        onclick: (ev: Event) => void;
     }) => void;
 }
 
