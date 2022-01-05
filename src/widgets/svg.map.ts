@@ -87,7 +87,7 @@ namespace svgmap {
         o.svg.onmousemove = handlemousemove;
         o.svg.oncontextmenu = (ev) => ev.preventDefault();
     }
-    export function add(type: CHILDREN_TYPE, { id, x, y, width, height, fill, onclick }: {
+    export function add(type: CHILDREN_TYPE, { id, x, y, width, height, fill, onclick, ...args }: {
         x: number;
         y: number;
         width: number;
@@ -111,7 +111,8 @@ namespace svgmap {
             width,
             height,
             fill,
-            onclick
+            onclick,
+            ...args
         });
         _paintFlag.children = true;
         paintOnce();
@@ -356,6 +357,8 @@ type ID = string;
 type CHILDREN_TYPE = keyof SVGElementTagNameMap;
 interface IEntities { svg: SVGSVGElement; paintHandler: number; }
 interface Mouse {
+    clickFlag: boolean;
+    clickFlagHandler: number;
     leftDownFlag: boolean;
     previousPosition: number[];
 }
@@ -392,6 +395,8 @@ export class SvgMap {
         });
 
         const _mouse: Mouse = {
+            clickFlag: false,
+            clickFlagHandler: -1,
             leftDownFlag: false,
             previousPosition: undefined
         };
@@ -452,6 +457,16 @@ export class SvgMap {
         }
         function handlemousedown(ev: MouseEvent): void {
             if (ev.button === 0) {
+                _mouse.clickFlag = true;
+                if (mouse.clickFlagHandler > -1) {
+                    clearTimeout(mouse.clickFlagHandler);
+                }
+                _mouse.clickFlagHandler = setTimeout(() => {
+                    _mouse.clickFlag = false;
+                    _mouse.clickFlagHandler = -1;
+                }, 500);
+
+
                 _mouse.leftDownFlag = true;
                 _mouse.previousPosition = [ev.offsetX, ev.offsetY];
             }
@@ -462,6 +477,8 @@ export class SvgMap {
             }
         }
         function handlemousemove(ev: MouseEvent): void {
+            // 这里不参与单击事件的过滤，因为从其他窗口点击进来后，可能触发鼠标移动事件，进而取消点击
+
             if (mouse.leftDownFlag) {
                 foo();
             }
@@ -569,6 +586,13 @@ export class SvgMap {
                     if (isNullOrEmpty(child[i])) { continue; }
                     if (i.startsWith("on") === false) {
                         e.setAttribute(i, child[i]);
+                    } else if (i === "onclick" && typeof child[i] === "function") {
+                        e.onclick = ev => {
+                            // 只处理单击事件
+                            if(mouse.clickFlag) {
+                                child[i](ev);
+                            }
+                        };
                     } else {
                         e[i] = child[i];
                     }
@@ -606,7 +630,7 @@ export class SvgMap {
             o.svg.oncontextmenu = (ev) => ev.preventDefault();
         }
 
-        this.add = function (type: CHILDREN_TYPE, { id, x, y, width, height, fill, onclick }: {
+        this.add = function (type: CHILDREN_TYPE, { id, x, y, width, height, fill, onclick, ...args }: {
             x: number;
             y: number;
             width: number;
@@ -630,7 +654,8 @@ export class SvgMap {
                 width,
                 height,
                 fill,
-                onclick
+                onclick,
+                ...args
             });
             _paintFlag.children = true;
             paintOnce();
