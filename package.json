@@ -11,7 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
-    "fetch-h2": "^3.0.1"
+    "fetch-h2": "^3.0.1",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {}
 }
