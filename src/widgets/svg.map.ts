@@ -659,7 +659,7 @@ export class SvgMap {
         assert(viewBox.length === 4);
 
         x = Number(x);
-        y = Number(x);
+        y = Number(y);
         width = Number(width);
         height = Number(height);
         viewBox = <any>viewBox.map(e => Number(e));
