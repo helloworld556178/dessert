@@ -573,6 +573,9 @@ export class SvgMap {
         }
         this.remove = (id: string): boolean => {
             assert(!isNullOrEmpty(id));
+            if (o.editFlag && o.editChild["data-id"] === id) {
+                _o.editChild = undefined;
+            }
 
             const index = children.findIndex(e => e["data-id"] === id);
             if (index > -1) {
@@ -582,6 +585,14 @@ export class SvgMap {
                 return true;
             }
             return false;
+        }
+        this.clear = () => {
+            if (o.editFlag) {
+                _o.editChild = undefined;
+            }
+            _children.splice(0, children.length);
+            _paintFlag.children = true;
+            paintOnce();
         }
 
         this.triggerEdit = () => {
@@ -621,6 +632,7 @@ export class SvgMap {
         onclick: (ev: Event, data: Children) => void;
     }) => string;
     remove: (id: string) => boolean;
+    clear(): void { throw "没有实现"; }
     triggerEdit: () => void;
     triggerResize: () => void;
     editFlag: (editFlag: boolean) => void;
