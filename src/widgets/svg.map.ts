@@ -36,6 +36,7 @@ interface Children {
     "scale"?: number;
     "rotate"?: number;
     "data-id": string;
+    "data-type"?: string;
     "onclick": (ev: Event, data: Children) => void;
     "children"?: string;
     // 直线
@@ -328,11 +329,11 @@ export class SvgMap {
                             }
                         }
                     }
-                    if (children.length === 0) {
-                        for (let i = childrenCache.length - 1; i >= 0; i--) {
+                    if (children.length < childrenCache.length) {
+                        for (let i = childrenCache.length - 1, l=children.length; i >= l; i--) {
                             removeChild(i);
                         }
-                        childrenCache.splice(0, childrenCache.length);
+                        childrenCache.splice(children.length);
                     }
                 }
 
@@ -373,7 +374,11 @@ export class SvgMap {
                     } else if (["children", "x", "y", "rotate", "scale"].includes(i)) {
                         continue;
                     } else if (typeof (child[i]) !== "function" && child[i] !== cachedChild[i]) {
-                        e.setAttribute(i, child[i]);
+                        if (i === "text" && child["type"] === "g" && child["data-type"] === "text") {
+                            e.children[0].innerHTML = child[i];
+                        } else {
+                            e.setAttribute(i, child[i]);
+                        }
                     }
                 }
                 if (!isNullOrEmpty(child['x']) && !isNullOrEmpty(child['y'])
@@ -416,7 +421,11 @@ export class SvgMap {
                         // 使用transform设定
                         continue;
                     } else if (i.startsWith("on") === false) {
-                        e.setAttribute(i, child[i]);
+                        if (i === "text" && child["type"] === "g" && child["data-type"] === "text") {
+                            e.children[0].innerHTML = child[i];
+                        } else {
+                            e.setAttribute(i, child[i]);
+                        }
                     } else if (i === "onclick" && typeof child[i] === "function") {
                         e.onclick = ev => {
                             // 只处理单击事件
