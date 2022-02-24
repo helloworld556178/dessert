@@ -373,6 +373,9 @@ export class SvgMap {
                         continue;
                     } else if (["children", "x", "y", "rotate", "scale"].includes(i)) {
                         continue;
+                    } else if(typeof(child[i]) === "object") {
+                        // 不处理对象
+                        continue;
                     } else if (typeof (child[i]) !== "function" && child[i] !== cachedChild[i]) {
                         if (i === "text" && child["type"] === "g" && child["data-type"] === "text") {
                             e.children[0].innerHTML = child[i];
@@ -415,7 +418,10 @@ export class SvgMap {
                     if (isNullOrEmpty(child[i])) { continue; }
                     if (i[0] === "-") {
                         continue;
-                    } else if (i === "children") {
+                    } else if(typeof(child[i]) === "object") {
+                        // 不处理对象
+                        continue;
+                    }  else if (i === "children") {
                         e.innerHTML = child[i];
                     } else if (["x", "y", "scale", "rotate"].includes(i)) {
                         // 使用transform设定
