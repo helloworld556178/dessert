@@ -576,7 +576,7 @@ export class SvgMap {
         }
         this.remove = (id: string): boolean => {
             assert(!isNullOrEmpty(id));
-            if (o.editFlag && o.editChild["data-id"] === id) {
+            if (o.editFlag && !!o.editChild && o.editChild["data-id"] === id) {
                 _o.editChild = undefined;
             }
 
