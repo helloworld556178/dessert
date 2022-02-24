@@ -1,6 +1,6 @@
 import { chain } from "../util/chain";
 import { assert } from "../util/assert";
-import { isNullOrEmpty, defaultValue as or, lt } from "../util/util";
+import { isNullOrEmpty, defaultValue as or, lt, last } from "../util/util";
 
 const MIN_WHEEL_VIEW = 2;
 const MAX_WHEEL_VIEW = Infinity;
@@ -563,6 +563,9 @@ export class SvgMap {
                 onclick,
                 ...args
             });
+            if (o.editFlag === true) {
+                _o.editChild = last(children);
+            }
             _paintFlag.children = true;
             paintOnce();
 
@@ -617,6 +620,9 @@ export class SvgMap {
         Object.defineProperty(this, "size", {
             get() { return [...size]; }
         });
+        Object.defineProperty(this, "editChild", {
+            get() { return o.editChild; }
+        });
 
         this.cleanEventListener = () => {
             window.removeEventListener("resize", handleresize);
@@ -636,13 +642,12 @@ export class SvgMap {
     triggerEdit: () => void;
     triggerResize: () => void;
     editFlag: (editFlag: boolean) => void;
+    get editChild(): Children { return undefined; }
     get viewBox() { return [0, 0, 0, 0] };
     set viewBox(value: [number, number, number, number]) { [...value]; }
     get size() { return [0, 0]; }
     // 清理添加的listener
-    cleanEventListener(): void {
-        throw "没有实现";
-    }
+    cleanEventListener(): void { throw "没有实现"; }
     // 没有太好的办法从外部获取这个事件
     onitemmousemove: (item: Children) => void;
 
