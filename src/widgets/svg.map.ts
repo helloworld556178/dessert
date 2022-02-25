@@ -310,7 +310,8 @@ export class SvgMap {
                             const cachedChild = childrenCache[i];
                             if (cachedChild["data-sequence"] === child["data-sequence"]) {
                                 for (let key in child) {
-                                    if (child[key] !== cachedChild[key]) {
+                                    if (child[key] !== cachedChild[key]
+                                        && !(typeof (child[key]) === "object" && typeof (cachedChild[key]) === "object")) {
                                         editChild(child, i, cachedChild);
                                         Object.assign(cachedChild, child);
                                         break;
@@ -658,7 +659,7 @@ export class SvgMap {
     triggerResize: () => void;
     editFlag: (editFlag: boolean) => void;
     get editChild(): Children { return undefined; }
-    get viewBox() { return [0, 0, 0, 0] };
+    get viewBox() { return [0, 0, 0, 0] }
     set viewBox(value: [number, number, number, number]) { [...value]; }
     get size() { return [0, 0]; }
     // 清理添加的listener
