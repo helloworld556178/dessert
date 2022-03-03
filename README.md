@@ -11,3 +11,39 @@
 1. [判定为猥亵，不入刑](https://mbd.baidu.com/newspage/data/landingsuper?context=%7B%22nid%22%3A%22news_8665461110681100718%22%7D&n_type=-1&p_from=-1)
 2. 周某状告张某文性侵
 3. 结果：判定为猥亵，性侵行为不成立，状告失败
+
+
+# ES7新增特性
+1. includes添加第二个参数，`[1,2,3].includes(1,1) === false`
+2. 添加幂运算符 \*\*
+# ES8新增特性
+1. 添加padStart和padEnd
+2. 添加Object.values()和Object.entries()
+3. 提供async await关键字
+# ES9新增特性
+1. **放松对标签模板里字符串转义的限制**，遇到不合法的字符串转义返回undefined,并且从raw上可获取原字符串。```test `\123` ```
+2. Promise.finally
+3. for await of，允许在for后添加await，迭代异步操作
+# ES10新增特性
+1. JSON.stringify可返回不符合UTF-8标准的字符串，`JSON.stringify("\uD83D") => '"\\uD83D"'`，如果转义失败，就维持编码的原始形态
+2. flatMap和flat
+3. Object.fromEntries()     `Object.fromEntries([['a', 1], ['b', 2]])`
+4. Function.prototype.toString()将从头到尾返回源代码中的实际文本片段。这意味着还将返回注释、空格和语法详细信息。
+5. catch参数变为可选
+# ES11新增特性
+1. 新增原始数据类型BigInt
+2. Promise.allSettled()
+   1. 将多个实例包装成一个新实例，返回全部实例状态变更后的状态数组(齐变更再返回)
+   2. 无论结果是 fulfilled 还是 rejected, 无需 catch
+3. `import()`
+4. `globalThis`
+5. `?.`
+6. `??`
+# ES12新增特性
+1. replaceAll
+2. Promise.any()
+3. WeakRefs，允许使用这个类创建一个对某个对象的弱引用   `const ref = new WeakRefs({a:1});`
+4. &&=  `a&&=b; a&&(a=b)`
+5. ||=  `a||=b; a||(a=b)`
+6. ??=  `a??=b; a??(a=b)`
+7. 数值分隔符，现在这种东西被认为是合法数字 `123_456`
