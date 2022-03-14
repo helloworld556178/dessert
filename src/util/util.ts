@@ -29,6 +29,40 @@ export function defaultValue<T>(value: T, defaultValue: T): T {
     return value;
 }
 
+export function eq(s1: string, s2: string): boolean {
+    return s1 === s2;
+}
+export function lt(s1: string, s2: string): boolean {
+    if (s1 === s2) { return false; }
+    if (isNullOrEmpty(s1)) {
+        if (isNullOrEmpty(s2)) {
+            return false;
+        }
+        return true;
+    } else if (isNullOrEmpty(s2)) {
+        return false;
+    } else if (s1.length === s2.length) {
+        return s1 < s2;
+    }
+    return s1.length < s2.length;
+}
+export function gt(s1: string, s2: string): boolean {
+    if (s1 === s2) { return false; }
+    if (isNullOrEmpty(s1)) {
+        return false;
+    } else if (isNullOrEmpty(s2)) {
+        if (isNullOrEmpty(s1)) {
+            return false;
+        }
+        return true;
+    } else if (s1.length === s2.length) {
+        return s1 > s2;
+    }
+    return s1.length > s2.length;
+}
+export function last<T>(array: readonly T[]): T {
+    return array[array.length - 1];
+}
 
 export namespace util {
     export namespace date {
