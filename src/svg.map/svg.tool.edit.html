@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG编辑器</title>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        button {
+            height: 33px;
+        }
+    </style>
+
+    <style>
+        .svg-tool-container {
+            width: 1366px;
+            height: 768px;
+            max-height: 100%;
+            margin-left: auto;
+            margin-right: auto;
+
+            user-select: none;
+
+            position: relative;
+        }
+
+        .svg-tool-commands {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 35px;
+        }
+
+        .svg-tool-title {
+            box-sizing: border-box;
+
+            float: left;
+            padding-top: 7px;
+        }
+
+        .svg-tool-commands .command {
+            float: right;
+        }
+
+
+        .svg-tool-box {
+            box-sizing: border-box;
+            border: 1px solid rgba(140, 0, 255, 0.466);
+
+            position: absolute;
+            top: 35px;
+            left: 0;
+            bottom: 0;
+            width: 235px;
+
+            overflow-y: auto;
+        }
+
+        .svg-tool-box * {
+            box-sizing: border-box;
+        }
+
+        .svg-tool-box table {
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .svg-tool-box td {
+            padding: 10px;
+        }
+
+        .svg-tool {
+            width: 100%;
+            height: 60px;
+            border: none;
+            box-shadow: 0px 0px 2px 0 #ada9c3;
+            padding: 3px;
+            border-radius: 7px;
+
+            cursor: pointer;
+        }
+
+        .svg-tool:hover {
+            box-shadow: 1px 0px 5px 0 #ada9c3;
+        }
+
+
+        .svg-tool-inner {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .svg-tool-property {
+            box-sizing: border-box;
+            border: 1px solid rgba(140, 0, 255, 0.466);
+
+            position: absolute;
+            top: 35px;
+            right: 0;
+            bottom: 0;
+            width: 235px;
+        }
+
+        .svg-property-title {
+            box-sizing: border-box;
+
+            height: 42px;
+            padding: 7px;
+            font-size: 18px;
+            line-height: 1.5;
+            border-bottom: 1px solid rgba(140, 0, 255, 0.466);
+            text-align: right;
+        }
+
+        .svg-property-container {
+            box-sizing: border-box;
+
+            height: calc(100% - 42px - 50px);
+            padding: 7px;
+
+            overflow-y: auto;
+        }
+
+        .svg-tool-entry {
+            box-sizing: border-box;
+
+            margin-bottom: 10px;
+        }
+
+        .svg-tool-entry>label {
+            box-sizing: border-box;
+
+            float: left;
+            width: 80px;
+        }
+
+        .svg-tool-entry>input {
+            box-sizing: border-box;
+            width: calc(100% - 80px);
+            outline: none;
+        }
+
+        .svg-tool-entry>select {
+            box-sizing: border-box;
+            width: calc(100% - 80px);
+            outline: none;
+        }
+
+        .svg-property-footer {
+            box-sizing: border-box;
+
+            height: 50px;
+            padding: 7px;
+            text-align: right;
+        }
+
+        .svg-map {
+            box-sizing: border-box;
+            border: 1px solid rgba(140, 0, 255, 0.466);
+            background-color: black;
+
+            position: absolute;
+            top: 35px;
+            left: 235px;
+            right: 235px;
+            bottom: 0;
+        }
+
+        .svg-map>svg {
+            width: 100%;
+            height: 100%;
+
+            outline: none;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        g {
+            cursor: pointer;
+        }
+
+        .line {
+            cursor: pointer;
+        }
+
+        .line-stroke,
+        .line-stroke-forward,
+        .line-stroke-backward {
+            cursor: pointer;
+        }
+
+        .line-stroke-dash {
+            cursor: pointer;
+            stroke-dasharray: 40, 10;
+        }
+
+        .line-stroke-dash-forward {
+            cursor: pointer;
+            stroke-dasharray: 40, 10;
+            animation: line-stroke-forward 1s linear infinite forwards;
+        }
+
+        .line-stroke-dash-backward {
+            cursor: pointer;
+            stroke-dasharray: 40, 10;
+            animation: line-stroke-backward 1s linear infinite forwards;
+        }
+
+        @keyframes line-stroke-forward {
+            0% {
+                stroke-dashoffset: 0;
+            }
+
+            50% {
+                stroke-dashoffset: 50;
+            }
+
+            100% {
+                stroke-dashoffset: 100;
+            }
+        }
+
+        @keyframes line-stroke-backward {
+            0% {
+                stroke-dashoffset: 100;
+            }
+
+            50% {
+                stroke-dashoffset: 50;
+            }
+
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="svg-tool-container">
+        <div class="svg-tool-commands">
+            <div class="svg-tool-title">编辑</div>
+            <button id="save-1" class="command" onclick="history.go(-1)">保存</button>
+        </div>
+
+        <div id="svg-tool-box" class="svg-tool-box">
+            <table style="width: 100%;">
+                <tr>
+                    <td>
+                        <div class="svg-tool" draggable="true">
+                            <div class="svg-tool-inner" draggable="true" title="发电机">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 100 100">
+                                    <g transform="translate(50, 50)">
+                                        <title>发电机</title>
+                                        <ellipse cx="50" cy="50" rx="35" ry="35" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></ellipse>
+                                        <path
+                                            d="M30,50 C30,44 34,40 40,40 46,40 50,44 50,50 M50,50 C50,56 54,60 60,60 66,60 70,56 70,50 "
+                                            fill="none" stroke="#FF0000" stroke-width="5"
+                                            transform="translate(-50, -50)"></path>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool" draggable="true">
+                            <div class="svg-tool-inner" draggable="true" title="向上箭头">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 32 32">
+                                    <g transform="translate(16, 16)">
+                                        <title>向上箭头</title>
+                                        <polygon points="6,22 16,6 26,22" fill="#FF0000" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-16, -16)">
+                                        </polygon>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool" draggable="true">
+                            <div class="svg-tool-inner" draggable="true" title="向下箭头">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 32 32">
+                                    <g transform="translate(16, 16)">
+                                        <title>向下箭头</title>
+                                        <polygon points="6,6 16,22 26,6" fill="#FF0000" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-16, -16)">
+                                        </polygon>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="断路器">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 50 50">
+                                    <g transform="translate(25, 25)">
+                                        <title>断路器</title>
+                                        <rect x="12" y="0" width="26" height="50" fill="#FF0000" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-25, -25)"></rect>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="双绕组变压器">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 100 100">
+                                    <g transform="translate(50, 50)">
+                                        <title>双绕组变压器</title>
+                                        <ellipse cx="50" cy="30" rx="25" ry="25" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></ellipse>
+                                        <ellipse cx="50" cy="70" rx="25" ry="25" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></ellipse>
+                                        <polygon points="60,20 50,40 40,20" fill="none" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></polygon>
+                                        <line x1="50" y1="70" x2="50" y2="85" fill="none" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></line>
+                                        <line x1="50" y1="70" x2="40" y2="60" fill="none" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></line>
+                                        <line x1="50" y1="70" x2="60" y2="60" fill="none" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></line>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="电容柜">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 60 60">
+                                    <g transform="translate(30, 30)">
+                                        <title>电容柜</title>
+                                        <line x1="30" y1="10" x2="20" y2="22" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <line x1="30" y1="9" x2="39" y2="22" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <line x1="18" y1="18" x2="24" y2="27" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <line x1="15" y1="23" x2="21" y2="32" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <polyline points="17,27 8,38 8,40" fill="none" stroke="#FF0000" stroke-width="3"
+                                            transform="translate(-30, -30)"></polyline>
+                                        <line x1="9" y1="39" x2="26" y2="39" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <line x1="25" y1="33" x2="25" y2="46" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <line x1="33" y1="33" x2="33" y2="46" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <line x1="34" y1="39" x2="51" y2="39" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <polyline points="43,27 52,38 52,40" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></polyline>
+                                        <line x1="44" y1="23" x2="38" y2="32" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <line x1="42" y1="18" x2="36" y2="27" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="灰白接地">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 80 80">
+                                    <g transform="translate(40, 40)">
+                                        <title>灰白接地</title>
+                                        <line x1="38" y1="38" x2="38" y2="20" fill="none" stroke="#CCCCCC"
+                                            stroke-width="5" transform="translate(-40, -40)">
+                                        </line>
+                                        <line x1="20" y1="38" x2="56" y2="38" fill="none" stroke="#CCCCCC"
+                                            stroke-width="5" transform="translate(-40, -40)"></line>
+                                        <line x1="26" y1="50" x2="50" y2="50" fill="none" stroke="#CCCCCC"
+                                            stroke-width="5" transform="translate(-40, -40)"></line>
+                                        <line x1="32" y1="62" x2="44" y2="62" fill="none" stroke="#CCCCCC"
+                                            stroke-width="5" transform="translate(-40, -40)"></line>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="隔离开关">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 100 100">
+                                    <g transform="translate(50, 50)">
+                                        <title>隔离开关</title>
+                                        <line x1="50" y1="12" x2="50" y2="37" fill="none" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></line>
+                                        <line x1="37" y1="37" x2="57" y2="37" fill="none" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></line>
+                                        <line x1="50" y1="63" x2="37" y2="44" fill="none" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></line>
+                                        <line x1="50" y1="87" x2="50" y2="62" fill="none" stroke="#FF0000"
+                                            stroke-width="5" transform="translate(-50, -50)"></line>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="避雷器">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 80 80">
+                                    <g transform="translate(40, 40)">
+                                        <title>避雷器</title>
+                                        <rect x="30" y="14" width="20" height="46" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-40, -40)"></rect>
+                                        <line x1="40" y1="5" x2="40" y2="33" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-40, -40)"></line>
+                                        <line x1="40" y1="61" x2="40" y2="70" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-40, -40)"></line>
+                                        <polyline points="38,24 40,33 42,24" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-40, -40)">
+                                        </polyline>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="多段折线">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 80 80">
+                                    <g transform="translate(40, 40)">
+                                        <title>多段折线</title>
+                                        <polyline points="24,42 41,24 58,42" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-40, -40)">
+                                        </polyline>
+                                        <polyline points="24,53 41,34 58,53" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-40, -40)">
+                                        </polyline>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="长方形">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 80 80">
+                                    <g transform="translate(40, 40)">
+                                        <title>长方形</title>
+                                        <rect x="30" y="10" width="20" height="60" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="4" stroke-linecap="round" transform="translate(-40, -40)">
+                                        </rect>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="信号灯">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 60 60">
+                                    <g transform="translate(30, 30)">
+                                        <title>信号灯</title>
+                                        <ellipse cx="30" cy="30" rx="18" ry="18" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></ellipse>
+                                        <line x1="19" y1="42" x2="42" y2="19" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                        <line x1="42" y1="42" x2="19" y2="19" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-30, -30)"></line>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="标准电容器">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 40 40">
+                                    <g transform="translate(20, 20)">
+                                        <title>标准电容器</title>
+                                        <line x1="20" y1="8" x2="20" y2="17" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></line>
+                                        <line x1="11" y1="17" x2="29" y2="17" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></line>
+                                        <line x1="11" y1="23" x2="29" y2="23" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></line>
+                                        <line x1="20" y1="32" x2="20" y2="23" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></line>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="标准电抗">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 70 70">
+                                    <g transform="translate(35, 35)">
+                                        <title>标准电抗</title>
+                                        <path
+                                            d="M33,66 V39 H48 C48,45 42,54 33,54 24,54 18,45 18,39 18,30 24,24 33,24 V9 V24"
+                                            fill="none" stroke="#FF0000" stroke-width="3"
+                                            transform="translate(-35, -35)"></path>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="文字">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 26 26">
+                                    <g transform="translate(13, 13)" data-type="text">
+                                        <text x="5" y="18" font-family="Microsoft YaHei" font-size="16" fill="#FF0000"
+                                            transform="translate(-13, -13)">文</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="三向互感器">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 40 40">
+                                    <g transform="translate(20, 20)">
+                                        <title>三项互感器</title>
+                                        <ellipse cx="20" cy="20" rx="10" ry="10" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></ellipse>
+                                        <line x1="18" y1="14" x2="18" y2="26" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></line>
+                                        <line x1="18" y1="14" x2="24" y2="20" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></line>
+                                        <line x1="24" y1="20" x2="18" y2="26" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></line>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="电流互感器Y">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 40 40">
+                                    <g transform="translate(20, 20)">
+                                        <title>电流互感器Y</title>
+                                        <ellipse cx="20" cy="20" rx="10" ry="10" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></ellipse>
+                                        <line x1="25" y1="16" x2="20" y2="21" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></line>
+                                        <line x1="15" y1="16" x2="20" y2="21" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)"></line>
+                                        <line x1="20" y1="21" x2="20" y2="26" fill="none" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-20, -20)">
+                                        </line>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="双圆">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 60 60">
+                                    <g transform="translate(30, 30)">
+                                        <title>双圆</title>
+                                        <ellipse cx="30" cy="21" rx="12" ry="12" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-30, -30)"></ellipse>
+                                        <ellipse cx="30" cy="39" rx="12" ry="12" fill-opacity="0" stroke="#FF0000"
+                                            stroke-width="2" transform="translate(-30, -30)"></ellipse>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="电线开关">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 0 100 100">
+                                    <g transform="translate(50, 50)">
+                                        <title>电线开关</title>
+                                        <line x1="50" y1="10" x2="50" y2="35" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-50, -50)"></line>
+                                        <line x1="50" y1="66" x2="35" y2="40" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-50, -50)"></line>
+                                        <line x1="50" y1="95" x2="50" y2="65" fill="none" stroke="#FF0000"
+                                            stroke-width="3" transform="translate(-50, -50)"></line>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="svg-tool">
+                            <div class="svg-tool-inner" draggable="true" title="电线">
+                                <svg data-type="template" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"
+                                    viewBox="0 -50 100 100">
+                                    <line x1="0" y1="0" x2="100" y2="0" fill="#FF0000" stroke="#FF0000"
+                                        stroke-width="3"></line>
+                                </svg>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="svg-map">
+            <svg id="svg" preserveAspectRatio="none">
+            </svg>
+        </div>
+        <div class="svg-tool-property">
+            <div class="svg-property-title">属性</div>
+            <div class="svg-property-container">
+                <div class="svg-tool-entry" id="hide-8">
+                    <label>设备ID</label>
+                    <input id="device-id-1" type="text" disabled>
+                </div>
+                <div class="svg-tool-entry" id="hide-9">
+                    <label>设备名称</label>
+                    <input id="device-name-1" type="text" disabled>
+                </div>
+                <div class="svg-tool-entry" id="hide-10">
+                    <label>变电站</label>
+                    <input id="substation-name-1" type="text" disabled>
+                </div>
+                <div class="svg-tool-entry" id="hide-11">
+                    <label>间隔名称</label>
+                    <input id="bay-name-1" type="text" disabled>
+                </div>
+                <div class="svg-tool-entry" id="hide-12">
+                    <label>缩放比例</label>
+                    <input id="scale-1" type="text" placeholder="请输入大于0的值">
+                </div>
+                <div class="svg-tool-entry" id="hide-13">
+                    <label>旋转角度</label>
+                    <input id="rotate-1" type="text" placeholder="请输入一个角度">
+                </div>
+                <div class="svg-tool-entry" id="hide-1">
+                    <label>线条x1</label>
+                    <input id="x1-1" type="text" placeholder="请输入线条的第一个端点的x坐标" title="线条的第一个端点的x坐标">
+                </div>
+                <div class="svg-tool-entry" id="hide-2">
+                    <label>线条y1</label>
+                    <input id="y1-1" type="text" placeholder="请输入线条的第一个端点的y坐标" title="线条的第一个端点的y坐标">
+                </div>
+                <div class="svg-tool-entry" id="hide-3">
+                    <label>线条x2</label>
+                    <input id="x2-1" type="text" placeholder="请输入线条的第二个端点的x坐标" title="线条的第二个端点的x坐标">
+                </div>
+                <div class="svg-tool-entry" id="hide-4">
+                    <label>线条y2</label>
+                    <input id="y2-1" type="text" placeholder="请输入线条的第二个端点的y坐标" title="线条的第二个端点的y坐标">
+                </div>
+                <div class="svg-tool-entry" id="hide-5">
+                    <label>线条类型</label>
+                    <select id="line-type-1">
+                        <option value="1">实线</option>
+                        <option value="2">虚线</option>
+                    </select>
+                </div>
+                <div class="svg-tool-entry" id="hide-6">
+                    <label>电流方向</label>
+                    <select id="line-direction-1">
+                        <option value="0">无</option>
+                        <option value="1">方向1</option>
+                        <option value="2">方向2</option>
+                    </select>
+                </div>
+                <div class="svg-tool-entry" id="hide-7">
+                    <label>文字内容</label>
+                    <input id="text-1" type="text" placeholder="请输入需要显示的内容" title="需要显示的内容">
+                </div>
+            </div>
+            <div class="svg-property-footer">
+                <button id="reset-1" title="画布的初始宽度为1920">恢复初始大小</button>
+                <button>关联设备</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { SvgMap } from "./svg.map.js";
+        import { SvgToolBoxImpl, PropertyTool } from "./svg.editor.js";
+
+        const svg = window["svg"];
+        const [width, height] = [svg.clientWidth, svg.clientHeight];
+        svg.setAttribute("viewBox", `0 0 1920 ${height / width * 1920}`);
+
+        const svgmap = new SvgMap();
+        svgmap.init("svg", 1920, height / width * 1920);
+        svgmap.editFlag(true);
+
+
+
+        // 左边工具框
+        const toolbox = new SvgToolBoxImpl();
+        toolbox.onadd = function (e) {
+            const target = e.template;
+            const position = SvgMap.svg2ViewBox([e.position.x, e.position.y, svg.clientWidth, svg.clientHeight], svgmap.viewBox);
+            if (target.tagName === "g") {
+                const text = target.dataset["type"] === "text" ? target.children[0].innerHTML : undefined;
+                const id = "id-" + Math.random();
+                svgmap.add("g", {
+                    id,
+                    x: position[0],
+                    y: position[1],
+                    children: target.innerHTML,
+                    ["data-type"]: target.dataset["type"],
+                    text,
+                    device: {
+                        id: "asdsaa1231",
+                        name: "fa23e21",
+                        substationName: "d21dsadsax13e",
+                        bayName: "f12e2d1dzfd"
+                    },
+                    oncontextmenu() {
+                        PropertyTool.initInput();
+                        svgmap.remove(id);
+                        svgmap.triggerEdit();
+                    },
+                    onclick(ev, data) {
+                        PropertyTool.editChild = data;
+                        if (data["data-type"] === "text") {
+                            // 加载已经有的数据
+                            PropertyTool.setScale(data["scale"] || 1);
+                            PropertyTool.setRotate(data["rotate"] || 0);
+                            PropertyTool.setText(data["text"]);
+                            PropertyTool.setType(2);
+                        } else {
+                            // 加载已经有的数据
+                            PropertyTool.setScale(data["scale"] || 1);
+                            PropertyTool.setRotate(data["rotate"] || 0);
+                            PropertyTool.setDeviceId(data["device"]["id"] || "");
+                            PropertyTool.setDeviceName(data["device"]["name"] || "");
+                            PropertyTool.setSubstationName(data["device"]["substationName"] || "");
+                            PropertyTool.setBayName(data["device"]["bayName"] || "");
+                            PropertyTool.setType(0);
+                        }
+                    }
+                });
+                PropertyTool.editChild = svgmap.editChild;
+                if (target.dataset["type"] === "text") {
+                    PropertyTool.setScale(PropertyTool.editChild["scale"] || 1);
+                    PropertyTool.setRotate(PropertyTool.editChild["rotate"] || 0);
+                    PropertyTool.setText(PropertyTool.editChild["text"]);
+                    PropertyTool.setType(2);
+                } else {
+                    PropertyTool.setScale(PropertyTool.editChild["scale"] || 1);
+                    PropertyTool.setRotate(PropertyTool.editChild["rotate"] || 0);
+                    PropertyTool.setDeviceId(PropertyTool.editChild["device"]["id"] || "");
+                    PropertyTool.setDeviceName(PropertyTool.editChild["device"]["name"] || "");
+                    PropertyTool.setSubstationName(PropertyTool.editChild["device"]["substationName"] || "");
+                    PropertyTool.setBayName(PropertyTool.editChild["device"]["bayName"] || "");
+                    PropertyTool.setType(0);
+                }
+            } else if (target.tagName === "line") {
+                const id = "test-line-" + Math.random();
+                svgmap.add("line", {
+                    id,
+                    class: "line-stroke",
+                    x1: Number(target.getAttribute("x1")) + position[0],
+                    y1: Number(target.getAttribute("y1")) + position[1],
+                    x2: Number(target.getAttribute("x2")) + position[0],
+                    y2: Number(target.getAttribute("y2")) + position[1],
+                    fill: target.getAttribute("fill"),
+                    stroke: target.getAttribute("stroke"),
+                    "stroke-width": Number(target.getAttribute("stroke-width")),
+                    oncontextmenu() {
+                        svgmap.remove(id);
+                        svgmap.triggerEdit();
+                    },
+                    onclick(ev, data) {
+                        PropertyTool.editChild = data;
+                        // 加载已有的数据
+                        PropertyTool.setX1(data["x1"]);
+                        PropertyTool.setY1(data["y1"]);
+                        PropertyTool.setX2(data["x2"]);
+                        PropertyTool.setY2(data["y2"]);
+                        if (!data["class"] || data["class"] === "line-stroke") {
+                            PropertyTool.setLineType(1);
+                            PropertyTool.setLineDirection(0);
+                        } else if (data["class"] === "line-stroke-forward") {
+                            PropertyTool.setLineType(1);
+                            PropertyTool.setLineDirection(1);
+                        } else if (data["class"] === "line-stroke-backward") {
+                            PropertyTool.setLineType(1);
+                            PropertyTool.setLineDirection(2);
+                        } else if (data["class"] === "line-stroke-dash") {
+                            PropertyTool.setLineType(2);
+                            PropertyTool.setLineDirection(0);
+                        } else if (data["class"] === "line-stroke-dash-forward") {
+                            PropertyTool.setLineType(2);
+                            PropertyTool.setLineDirection(1);
+                        } else if (data["class"] === "line-stroke-dash-backward") {
+                            PropertyTool.setLineType(2);
+                            PropertyTool.setLineDirection(2);
+                        }
+                        PropertyTool.setType(1);
+                        PropertyTool.editChild = data;
+                    }
+                });
+                PropertyTool.editChild = svgmap.editChild;
+                PropertyTool.setX1(PropertyTool.editChild["x1"]);
+                PropertyTool.setY1(PropertyTool.editChild["y1"]);
+                PropertyTool.setX2(PropertyTool.editChild["x2"]);
+                PropertyTool.setY2(PropertyTool.editChild["y2"]);
+                PropertyTool.setLineType(1);
+                PropertyTool.setLineDirection(0);
+                PropertyTool.setType(1);
+            }
+        };
+        toolbox.init("svg-tool-box", "svg");
+
+        // 右边属性框
+        PropertyTool.init(svgmap);
+        PropertyTool.onchangescale = (value) => {
+            const editChild = PropertyTool.editChild;
+            if (!editChild) { return; }
+            editChild.scale = Number(value);
+            svgmap.triggerEdit();
+        };
+        PropertyTool.onchangerotate = (value) => {
+            const editChild = PropertyTool.editChild;
+            if (!editChild) { return; }
+            editChild.rotate = Number(value);
+            svgmap.triggerEdit();
+        };
+        PropertyTool.onchangex1 = (value) => {
+            const editChild = PropertyTool.editChild;
+            if (!editChild) { return; }
+            editChild.x1 = Number(value);
+            svgmap.triggerEdit();
+        };
+        PropertyTool.onchangey1 = (value) => {
+            const editChild = PropertyTool.editChild;
+            if (!editChild) { return; }
+            editChild.y1 = Number(value);
+            svgmap.triggerEdit();
+        };
+        PropertyTool.onchangex2 = (value) => {
+            const editChild = PropertyTool.editChild;
+            if (!editChild) { return; }
+            editChild.x2 = Number(value);
+            svgmap.triggerEdit();
+        };
+        PropertyTool.onchangey2 = (value) => {
+            const editChild = PropertyTool.editChild;
+            if (!editChild) { return; }
+            editChild.y2 = Number(value);
+            svgmap.triggerEdit();
+        };
+        PropertyTool.onchangelinetype = (value) => {
+            const editChild = PropertyTool.editChild;
+            if (!editChild) { return; }
+            if ((editChild.class || "").endsWith("-forward")) {
+                editChild.class = ["", "line-stroke-forward", "line-stroke-dash-forward"][value];
+            } else if ((editChild.class || "").endsWith("-backward")) {
+                editChild.class = ["", "line-stroke-backward", "line-stroke-dash-backward"][value];
+            } else {
+                editChild.class = ["", "line-stroke", "line-stroke-dash"][value];
+            }
+            svgmap.triggerEdit();
+        };
+        PropertyTool.onchangelinedirection = (value) => {
+            const editChild = PropertyTool.editChild;
+            if (!editChild) { return; }
+            if ((editChild.class || "").startsWith("line-stroke-dash")) {
+                editChild.class = ["line-stroke-dash", "line-stroke-dash-forward", "line-stroke-dash-backward"][value];
+            } else {
+                editChild.class = ["line-stroke", "line-stroke-forward", "line-stroke-backward"][value];
+            }
+            svgmap.triggerEdit();
+        };
+        PropertyTool.onchangetext = (value) => {
+            const editChild = PropertyTool.editChild;
+            if (!editChild) { return; }
+            editChild.text = value || "-";
+            svgmap.triggerEdit();
+        };
+
+
+
+
+        window["reset-1"].addEventListener("click", () => {
+            svgmap.viewBox = [0, 0, 1920, svg.clientHeight / svg.clientWidth * 1920];
+            svgmap.triggerResize();
+        });
+    </script>
+</body>
+
+</html>
