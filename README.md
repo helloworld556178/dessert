@@ -11,6 +11,12 @@
 1. [判定为猥亵，不入刑](https://mbd.baidu.com/newspage/data/landingsuper?context=%7B%22nid%22%3A%22news_8665461110681100718%22%7D&n_type=-1&p_from=-1)
 2. 周某状告张某文性侵
 3. 结果：判定为猥亵，性侵行为不成立，状告失败
+## 目前需要的东西：
+- [ ] 1. 一个Linux漏洞 dirtyPipe
+- [ ] 2. webgpu学习
+- [ ] 3. 一种自动编程机器学习模型——Code-LMs
+- [x] 4. 俄罗斯公布文件
+- [ ] 5. 微塑料论文
 
 
 # ES7新增特性
