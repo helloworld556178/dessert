@@ -9,11 +9,15 @@ export class DBStore {
     private db: IDBDatabase;
     private promise: SimplePromise<void>;
 
-    constructor(name: string, version: number) {
+    constructor(name: string, version?: number) {
         this.name = name;
         this.version = version;
         this.promise = new SimplePromise<void>();
         this.init();
+    }
+    public getDBVersion(): number {
+        if (!this.ready) { return -1; }
+        return this.db.version;
     }
 
     private init(): void {
@@ -31,7 +35,7 @@ export class DBStore {
             const db: IDBDatabase = event.target["result"];
             if (!db.objectStoreNames.contains(DBStore.OBJECT_NAME)) {
                 const store = db.createObjectStore(DBStore.OBJECT_NAME, { keyPath: "key" });
-                store.createIndex("id", "id", { unique: true });
+                store.createIndex("value", "value", { unique: false });
             }
         };
     }
@@ -52,17 +56,16 @@ export class DBStore {
     public async set(key: string, value: any): Promise<void> {
         const store = await this.store();
         const promise = new SimplePromise();
-        const request = store.put({ "id": key, value: value }, key);
+        const request = store.put({ key, value });
         request.onsuccess = () => promise.resolve();
         request.onerror = (event: Event) => promise.reject(event);
         return promise.promise;
     }
     public async get(key: string): Promise<any> {
         const store = await this.store();
-        const index = store.index("id");
-        const request = index.get(key);
+        const request = store.get(key);
         const promise = new SimplePromise();
-        request.onsuccess = (event: Event) => promise.resolve(event.target["result"]["value"]);
+        request.onsuccess = (event: Event) => promise.resolve(event.target["result"]?.value);
         request.onerror = (event: Event) => promise.reject(event);
         return promise.promise;
     }
