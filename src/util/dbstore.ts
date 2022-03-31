@@ -2,6 +2,7 @@ import { SimplePromise } from "./promise";
 
 export class DBStore {
     private static readonly OBJECT_NAME = "STORE";
+
     public readonly name: string;
     public readonly version: number;
     public get ready(): boolean { return this.promise.finished; }
