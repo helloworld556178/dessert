@@ -64,6 +64,13 @@ export function last<T>(array: readonly T[]): T {
     return array[array.length - 1];
 }
 
+export function readonly<T extends object>(target: T): Readonly<T> {
+    return new Proxy<T>(target, {
+        get(target, key) { return target[key]; },
+        set() { return false; }
+    });
+}
+
 export namespace util {
     export namespace date {
         export const TIMEZONE_OFFSET = new Date().getTimezoneOffset() * 60000;
