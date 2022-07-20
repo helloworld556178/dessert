@@ -31,6 +31,8 @@ export interface ZTreeNode {
     isHidden: boolean;
     name: string;
 
+    icon?: string;
+
     readonly level: number;
     children: ZTreeNode[];
     getParentNode(): ZTreeNode;
