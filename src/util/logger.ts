@@ -13,7 +13,7 @@ class Log {
     error: BasicItem;
 
 
-    messages: string[];
+    messages: { type: "debug" | "info" | "warn" | "error"; message: string; }[];
     private debugIndex: number[];
     private infoIndex: number[];
     private warnIndex: number[];
@@ -31,7 +31,7 @@ class Log {
 
         this.debug = function (message: string): void {
             const index = self.messages.length;
-            self.messages.push(message);
+            self.messages.push({ type: "debug", message });
             self.debugIndex.push(index);
         } as BasicItem;
         this.debug.at = index => self.messages[self.debugIndex[index]];
@@ -39,7 +39,7 @@ class Log {
 
         this.info = function (message: string): void {
             const index = self.messages.length;
-            self.messages.push(message);
+            self.messages.push({ type: "info", message });
             self.infoIndex.push(index);
         } as BasicItem;
         this.info.at = index => self.messages[self.infoIndex[index]];
@@ -47,7 +47,7 @@ class Log {
 
         this.warn = function (message: string): void {
             const index = self.messages.length;
-            self.messages.push(message);
+            self.messages.push({ type: "warn", message });
             self.warnIndex.push(index);
         } as BasicItem;
         this.warn.at = index => self.messages[self.warnIndex[index]];
@@ -55,7 +55,7 @@ class Log {
 
         this.error = function (message: string): void {
             const index = self.messages.length;
-            self.messages.push(message);
+            self.messages.push({ type: "error", message });
             self.errorIndex.push(index);
         } as BasicItem;
         this.error.at = index => self.messages[self.errorIndex[index]];
@@ -75,7 +75,7 @@ class Log {
 interface BasicItem {
     (message: string): void;
     readonly size: number;
-    at(index: number): string;
+    at(index: number): { type: "debug" | "info" | "warn" | "error"; message: string; };
 }
 
 
