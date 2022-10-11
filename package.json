@@ -12,9 +12,12 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
     "fetch-h2": "^3.0.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "md5": "^2.3.0",
+    "three": "^0.143.0"
   },
   "devDependencies": {
+    "@types/bootstrap": "^5.2.2",
     "@types/jquery": "^3.5.14",
     "@types/lodash": "^4.14.182",
     "@types/ol": "^6.5.3",
