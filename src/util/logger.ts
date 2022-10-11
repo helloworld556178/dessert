@@ -35,7 +35,7 @@ class Log {
             self.debugIndex.push(index);
         } as BasicItem;
         this.debug.at = index => self.messages[self.debugIndex[index]];
-        Object.defineProperty(this.debug, "length", { "get": () => self.debugIndex.length });
+        Object.defineProperty(this.debug, "size", { "get": () => self.debugIndex.length });
 
         this.info = function (message: string): void {
             const index = self.messages.length;
@@ -43,7 +43,7 @@ class Log {
             self.infoIndex.push(index);
         } as BasicItem;
         this.info.at = index => self.messages[self.infoIndex[index]];
-        Object.defineProperty(this.info, "length", { "get": () => self.infoIndex.length });
+        Object.defineProperty(this.info, "size", { "get": () => self.infoIndex.length });
 
         this.warn = function (message: string): void {
             const index = self.messages.length;
@@ -51,7 +51,7 @@ class Log {
             self.warnIndex.push(index);
         } as BasicItem;
         this.warn.at = index => self.messages[self.warnIndex[index]];
-        Object.defineProperty(this.warn, "length", { "get": () => self.warnIndex.length });
+        Object.defineProperty(this.warn, "size", { "get": () => self.warnIndex.length });
 
         this.error = function (message: string): void {
             const index = self.messages.length;
@@ -59,7 +59,7 @@ class Log {
             self.errorIndex.push(index);
         } as BasicItem;
         this.error.at = index => self.messages[self.errorIndex[index]];
-        Object.defineProperty(this.error, "length", { "get": () => self.errorIndex.length });
+        Object.defineProperty(this.error, "size", { "get": () => self.errorIndex.length });
     }
     public static create(): Log {
         if (this.instance === undefined) {
@@ -74,7 +74,7 @@ class Log {
 
 interface BasicItem {
     (message: string): void;
-    readonly length: number;
+    readonly size: number;
     at(index: number): string;
 }
 
