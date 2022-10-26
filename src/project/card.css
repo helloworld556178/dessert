@@ -1,0 +1,142 @@
+main {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.card {
+    /* box-sizing: border-box; */
+    width: fit-content;
+    /* height: 260px; */
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.card * {
+    box-sizing: inherit;
+}
+
+.card input,
+.card input:focus,
+.card input:active {
+    outline: none;
+}
+
+.card__image {
+    width: 200px;
+    height: 220px;
+    border: 1px solid black;
+    background-image: radial-gradient(white, black);
+}
+
+.card__content {
+    width: 200px;
+    box-sizing: border-box;
+    padding-top: 15px;
+}
+
+.card__label {
+    display: block;
+}
+
+.card__text {
+    display: block;
+    width: 100%;
+}
+
+.card__inline-label input[type=text] {
+    width: 30px;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    border: 1px solid rgba(118, 118, 118, 0.3);
+    font-size: 1em;
+}
+
+.grid__3_1 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+.grid__2_1 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+
+
+.card--expanded {
+    box-sizing: border-box;
+    width: 100%;
+    /* height: 260px; */
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.card--expanded * {
+    box-sizing: inherit;
+}
+
+.card__detail {
+    float: right;
+    /* border: 1px solid black; */
+    width: calc(100% - 210px);
+    height: 380px;
+}
+
+.card__label-horizontal {
+    width: 100%;
+    display: block;
+    margin-top: 10px;
+}
+
+.card__label-horizontal input[type=text] {
+    width: calc(100% - 60px);
+    float: right;
+    position: relative;
+    top: 1px;
+}
+
+
+
+
+
+.gender {
+    position: relative;
+    width: 1em;
+    display: inline-block;
+}
+
+.gender input[type=checkbox] {
+    font-size: 1em;
+    width: 0;
+    height: 0;
+}
+
+.gender input[type=checkbox]::before {
+    color: blue;
+    content: '男';
+    display: block;
+    width: 1em;
+    height: 1em;
+    font-size: 1em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.gender input[type=checkbox]:checked::before {
+    color: red;
+    content: '女';
+}
+
+.gender input[type=checkbox]:hover::before {
+    opacity: 0.5;
+}
