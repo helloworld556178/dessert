@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>loading mask</title>
+    <script>
+        class LoadingMask extends HTMLElement {
+            static get observedAttributes() {
+                return ["class", "style", "title", "hit", "progress", "background-color", "color"];
+            }
+            attributeChangedCallback(name, oldValue, newValue) {
+                switch (name) {
+                    case "title":
+                        this.title = newValue;
+                        break;
+                    case "hit":
+                        this.hit = newValue;
+                        break;
+                    case "progress":
+                        this.progress = newValue;
+                        break;
+                    case "color":
+                        this.titleElement.style.setProperty("color", newValue);
+                        this.hitElement.style.setProperty("color", newValue);
+                        this.progressElement.style.setProperty("color", newValue);
+                        break;
+                    case "background-color":
+                        this.loadingElement.style.setProperty("background-color", newValue);
+                        break;
+                }
+            }
+            // 元素插入文档中时执行
+            connectedCallback() { }
+
+            constructor() {
+                super();
+
+                const shadow = this.attachShadow({ mode: "closed" });
+
+                const style = `
+            .loading {
+                width: 100%;
+                height: 100%;
+                min-height: 265px;
+                box-sizing: border-box;
+                position: relative;
+
+                user-select: none;
+            }
+
+            .title {
+                font-size: 36px;
+                padding: 30px;
+            }
+
+            .footer {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                left: 0;
+
+                font-size: 26px;
+                padding: 30px;
+
+                text-align: right;
+            }
+        `;
+                const styleElement = document.createElement("style");
+                styleElement.innerHTML = style;
+                shadow.appendChild(styleElement);
+
+                const loading = this.loadingElement = document.createElement("div");
+                loading.classList.add("loading");
+                shadow.appendChild(loading);
+
+                const title = this.titleElement = document.createElement("div");
+                title.classList.add("title");
+                const footer = document.createElement("div");
+                footer.classList.add("footer");
+                loading.appendChild(title);
+                loading.appendChild(footer);
+
+                const hit = this.hitElement = document.createElement("div");
+                hit.innerHTML = "加载中。。。";
+                const hr = document.createElement("hr");
+                const progress = this.progressElement = document.createElement("div");
+                progress.innerHTML = "0%";
+                footer.appendChild(hit);
+                footer.appendChild(hr);
+                footer.appendChild(progress);
+            }
+
+
+            /**
+             * @param {string} title
+             */
+            set title(title) {
+                this.titleElement.innerText = title || "";
+            }
+            /**
+             * @param {string} hit
+             */
+            set hit(hit) {
+                this.hitElement.innerText = hit || "";
+            }
+            /**
+             * @param {string} progress
+             */
+            set progress(progress) {
+                this.progressElement.innerText = progress || "";
+            }
+        }
+
+        customElements.define("loading-mask", LoadingMask);
+    </script>
+</head>
+
+<body>
+    <loading-mask id="mask" title="标题的长度对重要性的影响" hit="加载中（简单的提示）。。。" progress="0%" color="aliceblue"
+        background-color="gray"></loading-mask>
+</body>
+
+</html>
