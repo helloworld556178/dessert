@@ -91,6 +91,23 @@
                 footer.appendChild(hit);
                 footer.appendChild(hr);
                 footer.appendChild(progress);
+
+
+                const styles = {
+                    display: undefined
+                };
+                this.show = () => {
+                    if (styles.display == null) {
+                        this.style.removeProperty("display");
+                    } else {
+                        this.style.setProperty("display", styles.display);
+                    }
+                    styles.display = undefined;
+                };
+                this.hide = () => {
+                    styles.display = this.style.getPropertyValue("display");
+                    this.style.setProperty("display", "none");
+                };
             }
 
 
